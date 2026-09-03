@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Kisah Kopel Piksel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #ffd8c7;
+            color: #3d2626;
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ANTI-BLUR: semua aset piksel dirender tanpa anti-alias */
+        img,
+        .stage,
+        #scrolling-bg,
+        .gallery-page,
+        .guard,
+        .petal-layer > i,
+        .dash-scene > i,
+        .dash-horse {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
+        }
+        /* foto asli (bukan pixel art) tetap pakai penyaringan halus */
+        .slot-photo,
+        .photobooth-img,
+        #lightbox img {
+            image-rendering: auto;
+        }
+
+        .pixel-box {
+            background-color: #ffead1;
+            border: 4px solid #3d2626;
+            padding: 20px;
+            box-shadow:
+                inset 4px 4px 0px rgba(255,255,255,0.7),
+                inset -4px -4px 0px rgba(0,0,0,0.1),
+                4px 4px 0px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .pixel-btn {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #ff9d9d;
+            border: 4px solid #3d2626;
+            color: #3d2626;
+            padding: 12px 20px;
+            cursor: pointer;
+            box-shadow:
+                inset 4px 4px 0px rgba(255,255,255,0.5),
+                inset -4px -4px 0px rgba(0,0,0,0.2),
+                2px 2px 0px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+            transition: transform 0.1s;
+        }
+        .pixel-btn:hover {
+            background-color: #ffb3b3;
+        }
+        .pixel-btn:active {
+            transform: translateY(2px);
+            box-shadow:
+                inset 4px 4px 0px rgba(0,0,0,0.1),
+                inset -4px -4px 0px rgba(255,255,255,0.3);
+        }
+
+        .title-bar {
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #3d2626;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        .title-icon {
+            color: #d2606a;
+        }
+
+        /* SCREENS */
+        #screen-title, #screen-login {
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(to bottom, #ffcba4 0%, #ff9d9d 40%, #b5838d 70%, #2a223a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .landscape {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25vh;
+            background-color: #1f182b;
+            clip-path: polygon(0 50%, 10% 40%, 25% 60%, 40% 30%, 55% 55%, 70% 20%, 85% 50%, 100% 35%, 100% 100%, 0% 100%);
+            z-index: 1;
+        }
+
+        #screen-title .content-wrapper, #screen-login .pixel-box {
+            position: relative;
+            z-index: 2;
+        }
+
+        #screen-title h1 {
+            font-size: 4rem;
+            color: #ffead1;
+            text-shadow: 6px 6px 0 #3d2626, -2px -2px 0 #3d2626, 2px -2px 0 #3d2626, -2px 2px 0 #3d2626, 2px 2px 0 #3d2626;
+            margin-bottom: 60px;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .blink {
+            animation: blinker 1.2s linear infinite;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 3px 3px 0 #3d2626;
+            text-align: center;
+        }
+        .blink:hover {
+            color: #ffead1;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        /* LOGIN SCREEN */
+        #screen-login .pixel-box {
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .login-input {
+            font-family: 'Press Start 2P', monospace;
+            background: #fff;
+            border: 4px solid #3d2626;
+            padding: 15px;
+            width: 80%;
+            text-align: center;
+            font-size: 1.2rem;
+            box-shadow: inset 4px 4px 0px rgba(0,0,0,0.1);
+            outline: none;
+        }
+        .login-input:focus {
+            background-color: #fffae6;
+        }
+
+        .error-message {
+            color: #d2606a;
+            font-size: 0.8rem;
+            margin-top: -10px;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        /* MAIN DASHBOARD SCREEN */
+        #screen-main {
+            height: 100vh;
+            width: 100vw;
+            background-image:
+                linear-gradient(rgba(220, 120, 120, 0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(220, 120, 120, 0.2) 2px, transparent 2px);
+            background-size: 40px 40px;
+            padding: 30px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            height: calc(100vh - 60px);
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            flex: 0 0 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .sidebar-item.clickable {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .sidebar-item.clickable:hover {
+            background-color: #fff4e6;
+            transform: translateX(5px);
+        }
+
+        .submenu {
+            margin-top: 15px;
+            border-top: 2px dashed #3d2626;
+            padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .submenu-item {
+            font-size: 0.75rem;
+            color: #a45050;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            transition: color 0.1s;
+        }
+        .submenu-item::before {
+            content: '>';
+            margin-right: 10px;
+        }
+        .submenu-item:hover {
+            color: #e56b6b;
+        }
+
+        .profile-icon {
+            font-size: 3rem;
+            margin-top: 15px;
+            display: inline-block;
+        }
+
+        .content-area {
+            flex: 1;
+            height: 100%;
+        }
+
+        /* VIEW: DASHBOARD */
+        #view-dashboard {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 25px;
+            height: 100%;
+        }
+
+        .quest-log {
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px; /* For scrollbar */
+        }
+
+        /* Custom scrollbar for pixel look */
+        .quest-grid::-webkit-scrollbar {
+            width: 10px;
+        }
+        .quest-grid::-webkit-scrollbar-track {
+            background: #ffc2b3;
+            border: 2px solid #3d2626;
+        }
+        .quest-grid::-webkit-scrollbar-thumb {
+            background: #3d2626;
+        }
+
+        .quest-item {
+            background: rgba(255,255,255,0.6);
+            border: 3px solid #3d2626;
+            padding: 20px 10px;
+            text-align: center;
+            font-size: 0.65rem;
+            line-height: 1.6;
+            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.1);
+        }
+        .quest-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .key-items {
+            grid-row: 1 / 2;
+        }
+        .items-flex {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .item-slot {
+            width: 70px;
+            height: 70px;
+            background: #ffc2b3;
+            border: 4px solid #3d2626;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: inset -3px -3px 0px rgba(0,0,0,0.15);
+        }
+
+        .save-data {
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .save-text {
+            font-size: 0.75rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .save-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .save-buttons button {
+            flex: 1;
+            font-size: 0.7rem;
+            padding: 15px 10px;
+        }
+
+        /* VIEW: GALLERIES */
+        #view-gallery-random, #view-gallery-romance, #view-gallery-photobooth {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .gallery-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 10px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Custom scrollbar for gallery grids */
+        .gallery-grid::-webkit-scrollbar {
+            width: 10px;
+        }
+        .gallery-grid::-webkit-scrollbar-track {
+            background: #ffc2b3;
+            border: 2px solid #3d2626;
+        }
+        .gallery-grid::-webkit-scrollbar-thumb {
+            background: #3d2626;
+        }
+        .gallery-item {
+            background-color: #ffc2b3;
+            border: 4px solid #3d2626;
+            box-shadow: inset -4px -4px 0px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .gallery-item:hover {
+            background-color: #ffcfc4;
+            transform: scale(1.05);
+        }
+
+
+        /* ====== PANGGUNG (stage) untuk layar judul & password ====== */
+        .stage {
+            position: relative;
+            width: 100vw;
+            max-width: 1400px;
+            aspect-ratio: 1024/516;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 20px #000;
+            overflow: hidden;
+        }
+
+        /* ====== ANIMASI LAYAR JUDUL ====== */
+        #ttl-adventure, #ttl-press {
+            pointer-events: none;
+            will-change: transform;
+        }
+        #ttl-adventure {
+            animation: ttlBob 1.6s step-end infinite;
+        }
+        @keyframes ttlBob {
+            0%,   24.9% { transform: translateY(0); }
+            25%,  49.9% { transform: translateY(-5%); }
+            50%,  74.9% { transform: translateY(-9%); }
+            75%, 100%   { transform: translateY(-5%); }
+        }
+        #ttl-press {
+            animation: pressBlink 1.25s step-end infinite,
+                       pressBob   1.6s  step-end infinite;
+            animation-delay: 0s, 0.4s;
+        }
+        @keyframes pressBlink {
+            0%,  72% { opacity: 1; }
+            73%,100% { opacity: 0; }
+        }
+        @keyframes pressBob {
+            0%,  49.9% { transform: translateY(0); }
+            50%, 100%  { transform: translateY(-7%); }
+        }
+        /* tombol start disorot -> teks Press Start ikut menyala */
+        #btn-start:hover ~ #ttl-press {
+            filter: brightness(1.35) drop-shadow(0 0 6px rgba(255,220,180,0.9));
+            opacity: 1;
+            animation-name: pressBob;
+            animation-duration: 1.6s;
+        }
+        #btn-start:hover ~ #ttl-adventure {
+            filter: drop-shadow(0 0 8px rgba(255,200,160,0.6));
+        }
+
+        /* ====== PENJAGA GERBANG "BERNAPAS" (layar password) ====== */
+        .guard {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            transform-origin: 50% 100%;
+            will-change: transform;
+            animation: breathe 3.6s ease-in-out infinite;
+        }
+        #guard-right {
+            animation-duration: 4.3s;
+            animation-delay: -1.6s;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: scaleY(1); }
+            45%      { transform: scaleY(1.016); }
+        }
+
+        /* tombol menu tak terlihat di atas sidebar yang tergambar */
+        .nav-btn {
+            position: absolute;
+            cursor: pointer;
+            pointer-events: auto;
+            border-radius: 6px;
+            transition: box-shadow 0.12s ease, background-color 0.12s ease;
+        }
+        .nav-btn:hover {
+            background-color: rgba(255, 228, 180, 0.14);
+            box-shadow: 0 0 0 2px rgba(255, 225, 180, 0.75), 0 0 14px rgba(255, 200, 140, 0.45);
+        }
+        .nav-btn.active {
+            box-shadow: 0 0 0 2px rgba(255, 225, 180, 0.9), 0 0 16px rgba(255, 200, 140, 0.6);
+        }
+        /* ikon menu: PNG tersendiri, dipasang tepat di atas ikon mockup.
+           Animasinya memakai scale saja supaya latar di bawahnya tak pernah tersingkap. */
+        .nav-ico {
+            position: absolute;
+            pointer-events: none;
+            transform-origin: 50% 50%;
+            transition: transform 0.12s ease, filter 0.12s ease;
+        }
+        .nav-btn:hover .nav-ico {
+            transform: scale(1.12);
+            filter: brightness(1.2) drop-shadow(0 0 4px rgba(255, 210, 130, 0.7));
+        }
+        .nav-btn.active .nav-ico {
+            filter: brightness(1.14) drop-shadow(0 0 4px rgba(255, 210, 130, 0.95));
+            animation: icoPulse 1.7s ease-in-out infinite;
+        }
+        @keyframes icoPulse {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.08); }
+        }
+
+        #btn-logout:active, #btn-mute:active { transform: translateY(2px); }
+        #btn-logout:hover {
+            transform: translateX(-4px);
+            filter: drop-shadow(0 0 8px rgba(255,225,180,0.9));
+        }
+        #btn-mute:hover {
+            filter: drop-shadow(0 0 8px rgba(255,225,180,0.9));
+        }
+
+        /* transisi lembut saat berpindah layar / menu */
+        #screen-title:not(.hidden), #screen-login:not(.hidden), #screen-main:not(.hidden) {
+            animation: screenFade 0.35s ease-out;
+        }
+        @keyframes screenFade {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .view-section:not(.hidden) {
+            animation: viewFade 0.28s ease-out;
+        }
+        @keyframes viewFade {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        /* pemisah halus antar halaman galeri */
+        .gallery-page::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 10px 14px -8px rgba(0,0,0,0.85),
+                        inset 0 -10px 14px -8px rgba(0,0,0,0.85);
+        }
+
+        /* tombol tak terlihat di atas gambar gerbang */
+        .gate-btn {
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 6px;
+            transition: box-shadow 0.12s ease, transform 0.08s ease;
+        }
+        .gate-btn:hover {
+            box-shadow: 0 0 0 2px rgba(255,225,180,0.75), 0 0 14px rgba(255,200,140,0.55);
+        }
+        .gate-btn:active {
+            transform: translateY(2px);
+        }
+
+        #error-msg:not(.hidden) {
+            animation: errShake 0.4s ease-in-out 2;
+        }
+        @keyframes errShake {
+            0%, 100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            75%      { transform: translateX(6px); }
+        }
+
+
+        /* ====== KELOPAK BERJATUHAN (layar judul) ====== */
+        .petal-layer {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 6;
+        }
+        .petal-layer > i {
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 200%;
+            background-repeat: repeat;
+            image-rendering: pixelated;
+            will-change: transform;
+        }
+        .petal-far > i {
+            background-image: url('gambarpixel/anim/petals_far.png');
+            background-size: 17% 29%;
+            opacity: 0.45;
+            animation: petalFallFar 30s linear infinite;
+        }
+        .petal-near > i {
+            background-image: url('gambarpixel/anim/petals_near.png');
+            background-size: 24% 41%;
+            opacity: 0.92;
+            animation: petalFallNear 18s linear infinite;
+        }
+        @keyframes petalFallFar {
+            from { transform: translateY(-29%); }
+            to   { transform: translateY(0); }
+        }
+        @keyframes petalFallNear {
+            from { transform: translateY(-41%); }
+            to   { transform: translateY(0); }
+        }
+
+        /* ====== PENJAGA GERBANG: 2 frame (idle / menunduk) ====== */
+        .guard {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            background-image: url('gambarpixel/anim/guard_sheet.png');
+            background-repeat: no-repeat;
+            background-size: 200% 100%;
+            image-rendering: pixelated;
+            transform-origin: 50% 100%;
+            animation: breathe 3.6s ease-in-out infinite;
+        }
+        .guard-idle  { background-position: 0 0; }
+        .guard-react { background-position: 100% 0; animation: none; }
+        #guard-right {
+            animation-duration: 4.3s;
+            animation-delay: -1.6s;
+        }
+
+        /* ====== DASHBOARD: TREADMILL + KUDA JALAN ====== */
+        .dash-scene {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .dash-scene > i {
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 300%;
+            background-image: url('gambarpixel/anim/dash_loop.png');
+            background-size: auto 100%;
+            background-repeat: repeat-x;
+            will-change: transform;
+            animation: treadmill 50s linear infinite;
+        }
+        /* satu ubin (lanskap + cerminnya) = 56.55% dari lebar lapisan -> loop mulus */
+        /* kuda menghadap kiri -> lanskap harus bergeser ke kanan supaya terlihat maju */
+        @keyframes treadmill {
+            from { transform: translateX(-56.55%); }
+            to   { transform: translateX(0); }
+        }
+
+        .dash-horse {
+            position: absolute;
+            left: 50%;
+            bottom: 9.5%;
+            width: 33%;
+            aspect-ratio: 683 / 706;
+            transform: translateX(-50%);
+            z-index: 2;
+            background-image: url('gambarpixel/anim/horse_walk.png');
+            background-size: 300% 100%;
+            background-repeat: no-repeat;
+            animation: walkCycle 1.15s step-end infinite;
+        }
+        /* 3 frame -> 0% / 50% / 100% */
+        @keyframes walkCycle {
+            0%,      33.32% { background-position-x: 0%; }
+            33.33%,  66.65% { background-position-x: 50%; }
+            66.66%, 100%    { background-position-x: 100%; }
+        }
+        /* alternatif tanpa sprite sheet: naik-turun 4 px */
+        .horse-bobbing {
+            animation: horseBob 1.2s steps(2) infinite !important;
+        }
+        @keyframes horseBob {
+            0%,  50%     { transform: translateX(-50%) translateY(0); }
+            50.01%, 100% { transform: translateX(-50%) translateY(-4px); }
+        }
+
+        /* bulan dipisah dari lanskap supaya tidak ikut bergerak (dan tidak dobel) */
+        .dash-moon {
+            position: absolute;
+            left: 7%;
+            top: 6%;
+            width: 5.5%;
+            height: auto;
+            z-index: 1;
+            pointer-events: none;
+            animation: moonGlow 5s ease-in-out infinite;
+        }
+        @keyframes moonGlow {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 240, 200, 0.45)); }
+            50%      { filter: drop-shadow(0 0 7px rgba(255, 240, 200, 0.8)); }
+        }
+
+        .dash-logo {
+            position: absolute;
+            left: 63.7%;
+            top: 8%;
+            width: 32.7%;
+            height: auto;
+            z-index: 3;
+            pointer-events: none;
+            filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45));
+        }
+
+        /* ====== LIGHTBOX FOTO ====== */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(15, 8, 12, 0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: screenFade 0.2s ease-out;
+        }
+        #lightbox img {
+            max-width: 78vw;
+            max-height: 82vh;
+            image-rendering: auto;
+            border: 6px solid #f6e7c8;
+            box-shadow: 0 0 0 4px #3d2626, 0 10px 40px rgba(0,0,0,0.8);
+            background: #f6e7c8;
+        }
+        .lb-btn {
+            position: absolute;
+            font-family: 'Press Start 2P', monospace;
+            color: #ffe9c8;
+            background: rgba(61, 38, 38, 0.85);
+            border: 3px solid #f6e7c8;
+            padding: 14px 16px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.9rem;
+            line-height: 1;
+            transition: background-color 0.12s ease, transform 0.08s ease;
+        }
+        .lb-btn:hover { background: rgba(120, 70, 70, 0.95); }
+        .lb-btn:active { transform: translateY(2px); }
+        #lb-prev  { left: 3vw; top: 50%; transform: translateY(-50%); }
+        #lb-next  { right: 3vw; top: 50%; transform: translateY(-50%); }
+        #lb-close { right: 3vw; top: 4vh; }
+        #lb-count {
+            position: absolute;
+            bottom: 4vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7rem;
+            color: #ffe9c8;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* ====== HALAMAN GALERI (hanya bagian tengah yang ikut bergulir) ====== */
+        .gallery-page {
+            position: relative;
+            width: 100%;
+            height: 33.3333%;
+            /* sumbernya sudah di-upscale NN x6, jadi browser tinggal mengecilkan:
+               tepi piksel tetap tegas tanpa blok besar yang tidak rata */
+            image-rendering: auto;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .slot-photo {
+            position: absolute;
+            object-fit: cover;
+            object-position: 50% 32%;
+            image-rendering: auto;
+            border: 2px solid #f6e7c8;
+            box-shadow: 2px 3px 6px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease;
+        }
+        .slot-photo:hover {
+            filter: brightness(1.08) saturate(1.05);
+            box-shadow: 0 0 10px rgba(255,225,180,0.85);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #ttl-adventure, #ttl-press, .guard { animation: none !important; }
+        }
+
+        .photobooth-img {
+            width: 100%;
+            height: auto;
+            image-rendering: auto;
+            border: 3px solid #f6e7c8;
+            border-radius: 4px;
+            box-shadow: 2px 3px 8px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+        }
+        .photobooth-img:hover {
+            filter: brightness(1.08);
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(255,225,180,0.85);
+        }
+</style>
+</head>
+<body>
+
+    <!-- WADAH 1: TITLE SCREEN -->
+    <div id="screen-title" class="active full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
+        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg.jpg');">
+
+            <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
+            <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
+
+            <!-- Judul & PRESS START dipisah dari background supaya bisa bergerak -->
+            <img id="ttl-press" src="gambarpixel/anim/press.png" alt="Press Start"
+                 style="position: absolute; left: 41.309%; top: 18.217%; width: 18.164%; height: 5.62%; z-index: 5;">
+            <img id="ttl-adventure" src="gambarpixel/anim/title.png" alt="Our Adventure"
+                 style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
+
+            <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
+            <div class="petal-layer petal-far" style="z-index: 3;"><i></i></div>
+            <div class="petal-layer petal-near" style="z-index: 4;"><i></i></div>
+        </div>
+    </div>
+
+    <!-- WADAH 2: LOGIN MODAL -->
+    <div id="screen-login" class="hidden full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
+        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg.jpg');">
+
+            <!-- Penjaga gerbang: sprite sheet 2 frame (idle / menunduk saat mengetik) -->
+            <div class="guard guard-idle" id="guard-left"
+                 style="left: 17.349%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
+            <div class="guard guard-idle" id="guard-right"
+                 style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
+
+            <!-- Invisible input field positioned exactly over the baked-in stars -->
+        <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.5%; left: 42.09%; width: 15.92%; height: 5.81%; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.55rem, 1.35vw, 1rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.28em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
+
+        <!-- Invisible click target for SUBMIT -->
+        <div id="btn-login" class="gate-btn" style="position: absolute; top: 67.1%; left: 40.9%; width: 8.54%; height: 5.81%;"></div>
+        <!-- Invisible click target for CANCEL -->
+        <div id="btn-cancel" class="gate-btn" style="position: absolute; top: 67.1%; left: 50.4%; width: 8.67%; height: 5.81%;"></div>
+
+        <p id="error-msg" class="error-message hidden" style="position: absolute; bottom: 8%; width: 100%; text-align: center; color: #ff6b6b; text-shadow: 2px 2px #000; font-size: clamp(0.7rem, 1.6vw, 1rem); z-index: 10;">KODE SALAH!</p>
+        </div>
+    </div>
+
+    <!-- WADAH 3: MAIN DASHBOARD -->
+    <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
+        <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
+        <div id="dashboard-wrapper" style="position: relative; width: 100vw; max-width: 1400px; aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
+            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/mockup_dashboard.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
+
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
+                <!-- Re-enable pointer events for interactive areas -->
+                <style>
+                    #main-content-area { pointer-events: auto; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+                    #main-content-area::-webkit-scrollbar { display: none; }
+                    .sidebar-interactive { pointer-events: auto; }
+                </style>
+
+
+            <!-- TOMBOL MUTE AUDIO -->
+            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; right: 2%; width: 5%; height: auto; z-index: 50; cursor: pointer; filter: drop-shadow(2px 2px 5px #000);">
+
+            <!-- LEFT SIDEBAR (Invisible Interactive Overlays) -->
+            <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
+                <!-- Tombol menu: ikon PNG terpisah menimpa ikon yang tergambar di mockup -->
+                <div id="btn-dashboard-view"     class="nav-btn" style="left: 17%;   top: 28.5%; width: 62%; height: 11.5%;" title="Beranda">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_horse.png" alt=""
+                         style="left: 1.06%; top: 23.46%; width: 28.95%; height: 68.16%;">
+                </div>
+                <div id="btn-photobooth-gallery" class="nav-btn" style="left: 17.7%; top: 44.5%; width: 60%; height: 8.5%;"  title="Photobooth">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_photobooth.png" alt=""
+                         style="left: -3.67%; top: -1.84%; width: 35.41%; height: 103.50%;">
+                </div>
+                <div id="btn-random-gallery"     class="nav-btn" style="left: 17.7%; top: 55.5%; width: 60%; height: 9%;"    title="Photo Random">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_random.png" alt=""
+                         style="left: -3.67%; top: -0.49%; width: 35.41%; height: 95.98%;">
+                </div>
+                <div id="btn-romance-gallery"    class="nav-btn" style="left: 17.7%; top: 66.8%; width: 60%; height: 9%;"    title="Photo Romance">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_romance.png" alt=""
+                         style="left: -3.67%; top: -4.34%; width: 35.41%; height: 97.75%;">
+                </div>
+
+                <!-- Tombol keluar (tidak ada di mockup asli) -->
+                <img id="btn-logout" src="gambarpixel/back icon .png" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
+            </div>
+
+            <!-- CENTER CONTENT AREA -->
+            <div id="main-content-area" style="position: absolute; left: 17.773%; top: 13.953%; width: 52.540%; height: 83.140%; z-index: 5;">
+
+                <!-- DEFAULT DASHBOARD VIEW (Knight on Horse) -->
+                <!-- Left completely empty because the Knight on Horse is already beautifully painted on the mockup background! -->
+                <div id="view-dashboard" class="view-section" style="position: absolute; width: 100%; height: 100%; overflow: hidden;">
+                    <!-- lanskap bersih yang berjalan ke kiri (efek treadmill) -->
+                    <div class="dash-scene"><i></i></div>
+                    <!-- kuda jalan di tempat: sprite sheet 3 frame -->
+                    <div class="dash-horse"></div>
+                    <img class="dash-moon" src="gambarpixel/anim/moon.png" alt="">
+                    <img class="dash-logo" src="gambarpixel/anim/logo_sorrow.png" alt="Land of Sorrow">
+                </div>
+
+
+                <!-- GALLERY PHOTOBOOTH -->
+                <div id="view-gallery-photobooth" class="view-section hidden" style="position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: url('gambarpixel/bagian photobooth/background/assets_bg_castle_balcony.png') center/cover no-repeat;">
+                    <div style="width: 92%; height: 90%; overflow-y: auto; padding: 3%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4%; background: rgba(0,0,0,0.6); border-radius: 8px; border: 3px solid #8b5a2b; box-shadow: inset 0 0 10px #000;">
+                        <img src="photo/thumb/photobooth/photobooth1.jpg" data-full="photo/photobooth/photobooth1.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth2.jpg" data-full="photo/photobooth/photobooth2.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth3.jpg" data-full="photo/photobooth/photobooth3.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth4.jpg" data-full="photo/photobooth/photobooth4.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth5.jpg" data-full="photo/photobooth/photobooth5.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth6.jpg" data-full="photo/photobooth/photobooth6.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth7.jpg" data-full="photo/photobooth/photobooth7.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth8.jpg" data-full="photo/photobooth/photobooth8.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth9.jpg" data-full="photo/photobooth/photobooth9.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/1-20260627-210208-dtmtckm34vbvc1fy.jpg" data-full="photo/photobooth/1-20260627-210208-dtmtckm34vbvc1fy.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/1-20260627-210720-jxh3p8rg3di8uzzu.jpg" data-full="photo/photobooth/1-20260627-210720-jxh3p8rg3di8uzzu.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210208-dtmtckm34vbvc1fyl2a07OdG.jpg" data-full="photo/photobooth/4-20260627-210208-dtmtckm34vbvc1fyl2a07OdG.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210208-dtmtckm34vbvc1fyx295CU3C.jpg" data-full="photo/photobooth/4-20260627-210208-dtmtckm34vbvc1fyx295CU3C.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210720-jxh3p8rg3di8uzzu0JkynbUz.jpg" data-full="photo/photobooth/4-20260627-210720-jxh3p8rg3di8uzzu0JkynbUz.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210720-jxh3p8rg3di8uzzuOQngPvQz.jpg" data-full="photo/photobooth/4-20260627-210720-jxh3p8rg3di8uzzuOQngPvQz.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210720-jxh3p8rg3di8uzzueLzusGBE.jpg" data-full="photo/photobooth/4-20260627-210720-jxh3p8rg3di8uzzueLzusGBE.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/4-20260627-210720-jxh3p8rg3di8uzzuwjlKI30y.jpg" data-full="photo/photobooth/4-20260627-210720-jxh3p8rg3di8uzzuwjlKI30y.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG-20260713-WA0023.jpg" data-full="photo/photobooth/IMG-20260713-WA0023.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0748.jpg" data-full="photo/photobooth/IMG_0748.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0749.jpg" data-full="photo/photobooth/IMG_0749.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0750.jpg" data-full="photo/photobooth/IMG_0750.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0751.jpg" data-full="photo/photobooth/IMG_0751.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0752.jpg" data-full="photo/photobooth/IMG_0752.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0753.jpg" data-full="photo/photobooth/IMG_0753.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0754.jpg" data-full="photo/photobooth/IMG_0754.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0755.jpg" data-full="photo/photobooth/IMG_0755.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0756.jpg" data-full="photo/photobooth/IMG_0756.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0757.jpg" data-full="photo/photobooth/IMG_0757.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0758.jpg" data-full="photo/photobooth/IMG_0758.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0759.jpg" data-full="photo/photobooth/IMG_0759.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0760.jpg" data-full="photo/photobooth/IMG_0760.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0761.jpg" data-full="photo/photobooth/IMG_0761.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0762.jpg" data-full="photo/photobooth/IMG_0762.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0763.jpg" data-full="photo/photobooth/IMG_0763.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0764.jpg" data-full="photo/photobooth/IMG_0764.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0765.jpg" data-full="photo/photobooth/IMG_0765.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0766.jpg" data-full="photo/photobooth/IMG_0766.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0767.jpg" data-full="photo/photobooth/IMG_0767.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0768.jpg" data-full="photo/photobooth/IMG_0768.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0769.jpg" data-full="photo/photobooth/IMG_0769.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0770.jpg" data-full="photo/photobooth/IMG_0770.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0771.jpg" data-full="photo/photobooth/IMG_0771.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/IMG_0772.jpg" data-full="photo/photobooth/IMG_0772.jpg" class="photobooth-img" alt="">
+                    </div>
+                </div>
+
+                <!-- GALLERY RANDOM -->
+                <div id="view-gallery-random" class="view-section hidden" style="position: absolute; width: 100%; height: 700%;">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random1.jpg" data-full="photo/photorandom/page 1/photo_random1.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random2.jpg" data-full="photo/photorandom/page 1/photo_random2.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random3.jpg" data-full="photo/photorandom/page 1/photo_random3.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random4.jpg" data-full="photo/photorandom/page 1/photo_random4.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random5.jpg" data-full="photo/photorandom/page 2/photo_random5.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random6.jpg" data-full="photo/photorandom/page 2/photo_random6.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random7.jpg" data-full="photo/photorandom/page 2/photo_random7.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random8.jpg" data-full="photo/photorandom/page 2/photo_random8.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random9.jpg" data-full="photo/photorandom/page 3/photo_random9.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random10.jpg" data-full="photo/photorandom/page 3/photo_random10.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random11.jpg" data-full="photo/photorandom/page 3/photo_random11.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random12.jpg" data-full="photo/photorandom/page 3/photo_random12.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random13.jpg" data-full="photo/photorandom/page 4/photo_random13.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random14.jpg" data-full="photo/photorandom/page 4/photo_random14.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random15.jpg" data-full="photo/photorandom/page 4/photo_random15.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random16.jpg" data-full="photo/photorandom/page 4/photo_random16.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random17.jpg" data-full="photo/photorandom/page 5/photo_random17.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random18.jpg" data-full="photo/photorandom/page 5/photo_random18.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random19.jpg" data-full="photo/photorandom/page 5/photo_random19.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random20.jpg" data-full="photo/photorandom/page 5/photo_random20.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random21.jpg" data-full="photo/photorandom/page 6/photo_random21.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random22.jpg" data-full="photo/photorandom/page 6/photo_random22.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random23.jpg" data-full="photo/photorandom/page 6/photo_random23.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random24.jpg" data-full="photo/photorandom/page 6/photo_random24.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 7/photo_random25.jpg" data-full="photo/photorandom/page 7/photo_random25.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
+                        <img class="slot-photo" src="photo/thumb/photorandom/page 7/photo_random26.jpg" data-full="photo/photorandom/page 7/photo_random26.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
+                    </div>
+                </div>
+
+                <!-- GALLERY ROMANCE -->
+                <div id="view-gallery-romance" class="view-section hidden" style="position: absolute; width: 100%; height: 300%;">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance1.jpg" data-full="photo/photoromance/page 1/photo_romance1.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance2.jpg" data-full="photo/photoromance/page 1/photo_romance2.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance3.jpg" data-full="photo/photoromance/page 1/photo_romance3.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance4.jpg" data-full="photo/photoromance/page 2/photo_romance4.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance5.jpg" data-full="photo/photoromance/page 2/photo_romance5.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance6.jpg" data-full="photo/photoromance/page 2/photo_romance6.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
+                    </div>
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance7.jpg" data-full="photo/photoromance/page 3/photo_romance7.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance8.jpg" data-full="photo/photoromance/page 3/photo_romance8.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
+                        <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance9.jpg" data-full="photo/photoromance/page 3/photo_romance9.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
+                    </div>
+                </div>
+
+                <!-- PROFILE VIEW -->
+                <div id="view-profile" class="view-section hidden" style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.7);">
+                    <div style="background: #e8d0aa; border: 6px solid #8b5a2b; padding: 3vw; width: 70%; display: flex; justify-content: space-around; box-shadow: 0 0 20px #000; border-radius: 12px;">
+                        <div style="text-align: center; width: 40%;">
+                            <h3 class="pixel-text" style="color: #4a3b2c;">PRINCE</h3>
+                            <img src="gambarpixel/bagian landing page/icons/couple_prince_princess.png" style="width: 80%; clip-path: inset(0 50% 0 0); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));">
+                            <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Ksatria</p>
+                        </div>
+                        <div style="text-align: center; width: 40%;">
+                            <h3 class="pixel-text" style="color: #4a3b2c;">PRINCESS</h3>
+                            <img src="gambarpixel/bagian landing page/icons/couple_prince_princess.png" style="width: 80%; clip-path: inset(0 0 0 50%); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); transform: scaleX(-1);">
+                            <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Tuan Putri</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT UI PANEL (Invisible Overlay) -->
+            <div class="sidebar-interactive" style="position: absolute; right: 0; top: 0; width: 20%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding-top: 5%;">
+                <div style="width: 60%; height: 20%; cursor: pointer;" id="btn-profile" title="Lihat Profil"></div>
+            </div>
+
+            </div><!-- /lapisan overlay -->
+
+        </div><!-- /dashboard-wrapper -->
+    </div><!-- /screen-main -->
+
+    <!-- LIGHTBOX FOTO -->
+    <div id="lightbox" class="hidden">
+        <img id="lightbox-img" src="" alt="">
+        <div class="lb-btn" id="lb-prev">&lt;</div>
+        <div class="lb-btn" id="lb-next">&gt;</div>
+        <div class="lb-btn" id="lb-close">X</div>
+        <div id="lb-count"></div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const screenTitle = document.getElementById('screen-title');
+            const screenLogin = document.getElementById('screen-login');
+            const screenMain = document.getElementById('screen-main');
+
+            const btnStart = document.getElementById('btn-start');
+            const btnLogin = document.getElementById('btn-login');
+            const btnCancel = document.getElementById('btn-cancel');
+            const inputPassword = document.getElementById('password-input');
+            const errorMsg = document.getElementById('error-msg');
+
+            const viewDashboard = document.getElementById('view-dashboard');
+            const viewGalleryRandom = document.getElementById('view-gallery-random');
+            const viewGalleryRomance = document.getElementById('view-gallery-romance');
+            const viewGalleryPhotobooth = document.getElementById('view-gallery-photobooth');
+            const allViews = document.querySelectorAll('.view-section');
+
+            const btnDashboardView = document.getElementById('btn-dashboard-view');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnRandomGallery = document.getElementById('btn-random-gallery');
+            const btnRomanceGallery = document.getElementById('btn-romance-gallery');
+            const btnPhotoboothGallery = document.getElementById('btn-photobooth-gallery');
+
+            const bgmAudio = document.getElementById('bgm-audio');
+            const btnMute = document.getElementById('btn-mute');
+
+
+            const dashboardWrapper = document.getElementById('dashboard-wrapper');
+            const viewProfile = document.getElementById('view-profile');
+            const btnProfile = document.getElementById('btn-profile');
+
+            function markActive(btn) {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                if (btn) btn.classList.add('active');
+            }
+
+            function showView(viewElement, bgImage = null) {
+                allViews.forEach(v => v.classList.add('hidden'));
+                if(viewProfile) viewProfile.classList.add('hidden');
+
+                if (viewElement) viewElement.classList.remove('hidden');
+
+                // selalu mulai dari halaman pertama tiap ganti menu
+                const area = document.getElementById('main-content-area');
+                if (area) area.scrollTop = 0;
+
+                if (bgImage) {
+                    document.getElementById('scrolling-bg').style.backgroundImage = 'url("gambarpixel/' + bgImage + '")';
+                } else {
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/mockup_dashboard.png')";
+                }
+            }
+
+
+            // Bingkai + sidebar tetap diam; hanya isi panel tengah yang bergulir
+            const mainContentArea = document.getElementById('main-content-area');
+
+            // 1. Aksi Title Screen ke Login
+            btnStart.addEventListener('click', () => {
+                screenTitle.classList.add('hidden');
+                screenTitle.classList.remove('active');
+
+                screenLogin.classList.remove('hidden');
+                screenLogin.classList.add('active');
+
+                inputPassword.value = '';
+                errorMsg.classList.add('hidden');
+                inputPassword.focus();
+            });
+
+            // Aksi Cancel Login
+            if(btnCancel) {
+                btnCancel.addEventListener('click', () => {
+                    screenLogin.classList.add('hidden');
+                    screenLogin.classList.remove('active');
+
+                    screenTitle.classList.remove('hidden');
+                    screenTitle.classList.add('active');
+                });
+            }
+
+            // 2. Aksi Login Validasi
+            const attemptLogin = () => {
+                if (inputPassword.value === '01052026') {
+                    screenLogin.classList.add('hidden');
+                    screenLogin.classList.remove('active');
+
+                    screenMain.classList.remove('hidden');
+                    screenMain.classList.add('active');
+
+                    showView(viewDashboard);
+
+                    bgmAudio.volume = 0.3;
+                    bgmAudio.play().catch(e => console.log('Autoplay blocked:', e));
+                } else {
+                    errorMsg.classList.remove('hidden');
+                }
+            };
+
+            btnLogin.addEventListener('click', attemptLogin);
+
+            // Penjaga menunduk saat kolom sandi dipakai
+            const guards = document.querySelectorAll('.guard');
+            const setGuard = (react) => guards.forEach(g => {
+                g.classList.toggle('guard-react', react);
+                g.classList.toggle('guard-idle', !react);
+            });
+            let guardTimer = null;
+            const guardPeek = () => {
+                setGuard(true);
+                clearTimeout(guardTimer);
+                guardTimer = setTimeout(() => setGuard(false), 1400);
+            };
+            inputPassword.addEventListener('input', guardPeek);
+            inputPassword.addEventListener('keydown', guardPeek);
+            inputPassword.addEventListener('blur', () => { clearTimeout(guardTimer); setGuard(false); });
+            inputPassword.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') attemptLogin();
+            });
+
+            // 3. Aksi Sidebar
+            btnDashboardView.addEventListener('click', () => { markActive(btnDashboardView); showView(viewDashboard); });
+            if(btnPhotoboothGallery) btnPhotoboothGallery.addEventListener('click', () => { markActive(btnPhotoboothGallery); showView(viewGalleryPhotobooth); });
+            if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random.png'); });
+            if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance.png'); });
+
+            if(btnProfile) {
+                btnProfile.addEventListener('click', () => {
+                    allViews.forEach(v => v.classList.add('hidden'));
+                    viewProfile.classList.remove('hidden');
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/mockup_dashboard.png')";
+                });
+            }
+
+            // 4. Aksi Logout kembali ke Title Screen
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    screenMain.classList.add('hidden');
+                    screenMain.classList.remove('active');
+
+                    screenTitle.classList.remove('hidden');
+                    screenTitle.classList.add('active');
+
+                    // Hentikan musik saat kembali ke judul
+                    bgmAudio.pause();
+                    bgmAudio.currentTime = 0;
+                    btnMute.style.opacity = '1';
+                });
+            }
+
+
+            // ================= LIGHTBOX FOTO =================
+            const lightbox = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
+            const lbCount = document.getElementById('lb-count');
+            let lbList = [], lbIndex = 0;
+
+            function lbShow(i) {
+                if (!lbList.length) return;
+                lbIndex = (i + lbList.length) % lbList.length;
+                lbImg.src = lbList[lbIndex];
+                lbCount.textContent = (lbIndex + 1) + ' / ' + lbList.length;
+            }
+            function lbOpen(list, i) {
+                lbList = list;
+                lbShow(i);
+                lightbox.classList.remove('hidden');
+            }
+            function lbClose() {
+                lightbox.classList.add('hidden');
+                lbImg.src = '';
+            }
+
+            document.querySelectorAll('.view-section').forEach(view => {
+                const imgs = Array.from(view.querySelectorAll('.slot-photo, .photobooth-img'));
+                const urls = imgs.map(im => im.dataset.full || im.getAttribute('src'));
+                imgs.forEach((im, i) => im.addEventListener('click', () => lbOpen(urls, i)));
+            });
+
+            document.getElementById('lb-prev').addEventListener('click', e => { e.stopPropagation(); lbShow(lbIndex - 1); });
+            document.getElementById('lb-next').addEventListener('click', e => { e.stopPropagation(); lbShow(lbIndex + 1); });
+            document.getElementById('lb-close').addEventListener('click', lbClose);
+            lightbox.addEventListener('click', e => { if (e.target === lightbox) lbClose(); });
+            document.addEventListener('keydown', e => {
+                if (lightbox.classList.contains('hidden')) return;
+                if (e.key === 'Escape') lbClose();
+                if (e.key === 'ArrowLeft') lbShow(lbIndex - 1);
+                if (e.key === 'ArrowRight') lbShow(lbIndex + 1);
+            });
+
+            // 5. Aksi Tombol Mute Audio
+            btnMute.addEventListener('click', () => {
+                if (bgmAudio.paused) {
+                    bgmAudio.play();
+                    btnMute.style.opacity = '1';
+                } else {
+                    bgmAudio.pause();
+                    btnMute.style.opacity = '0.45';
+                }
+            });
+        });
+    </script>
+    <!-- AUDIO BACKGROUND -->
+    <audio id="bgm-audio" src="musik/bgm-rosewater.mp3" loop></audio>
+</body>
+</html>
+
+
+
+
+
+
