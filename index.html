@@ -30,6 +30,8 @@
         #scrolling-bg,
         .gallery-page,
         .guard,
+        .ld-sky > i,
+        .ld-horse,
         .petal-layer > i,
         .dash-scene > i,
         .dash-horse {
@@ -698,6 +700,208 @@
             filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.45));
         }
 
+
+        /* ====================================================================
+           OVERLAY LOADING (transisi antar layar)
+           ==================================================================== */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            overflow: hidden;
+            background: #1b1033;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        #loading-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* langit bergulir ke kanan -> kuda terasa melaju ke kiri */
+        .ld-sky {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+        .ld-sky > i {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200vw;
+            height: 100%;
+            background: url('gambarpixel/anim/loading_sky.png') 0 0 / 100vw 100% repeat-x;
+            animation: ldSky 7s linear infinite;
+            will-change: transform;
+        }
+        @keyframes ldSky {
+            from { transform: translateX(-100vw); }
+            to   { transform: translateX(0); }
+        }
+
+        /* garis-garis kecepatan */
+        .ld-speed {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            /* garis putus-putus mendatar, dipotong tipis lalu diredupkan di tepi layar */
+            background: repeating-linear-gradient(90deg,
+                rgba(255, 236, 200, 0) 0 110px,
+                rgba(255, 236, 200, 0.34) 110px 190px,
+                rgba(255, 236, 200, 0) 190px 300px);
+            -webkit-mask-image:
+                repeating-linear-gradient(180deg, #000 0 3px, transparent 3px 52px),
+                linear-gradient(180deg, transparent 24%, #000 40%, #000 76%, transparent 92%),
+                linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
+            -webkit-mask-composite: source-in;
+            mask-image:
+                repeating-linear-gradient(180deg, #000 0 3px, transparent 3px 52px),
+                linear-gradient(180deg, transparent 24%, #000 40%, #000 76%, transparent 92%),
+                linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
+            mask-composite: intersect;
+            animation: ldStreak 0.55s linear infinite;
+        }
+        @keyframes ldStreak {
+            from { transform: translateX(0); }
+            to   { transform: translateX(300px); }
+        }
+
+        /* kuda berlari: sprite sheet 2 frame */
+        .ld-horse {
+            position: relative;
+            z-index: 2;
+            width: min(48vw, 620px);
+            aspect-ratio: 935 / 699;
+            background-image: url('gambarpixel/anim/gallop_sheet.png');
+            background-size: 200% 100%;
+            background-repeat: no-repeat;
+            animation: ldGallop 0.24s steps(2) infinite;
+            filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.35));
+        }
+        @keyframes ldGallop {
+            from { background-position-x: 0%; }
+            to   { background-position-x: 200%; }
+        }
+        /* bayangan/jejak kecepatan di belakang kuda (kuda menghadap kiri) */
+        .ld-horse::before,
+        .ld-horse::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background-image: url('gambarpixel/anim/gallop_sheet.png');
+            background-size: 200% 100%;
+            background-repeat: no-repeat;
+            animation: ldGallop 0.24s steps(2) infinite;
+        }
+        .ld-horse::before {
+            transform: translateX(7%);
+            opacity: 0.24;
+            filter: brightness(1.5) saturate(0.35);
+            animation-delay: -0.12s;
+        }
+        .ld-horse::after {
+            transform: translateX(14%);
+            opacity: 0.14;
+            filter: brightness(1.8) saturate(0.15);
+        }
+
+        /* teks + titik berjalan */
+        .ld-text {
+            position: relative;
+            z-index: 3;
+            margin: 3vh 0 0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.55rem, 1.5vw, 1rem);
+            line-height: 1.8;
+            color: #ffe9c8;
+            text-shadow: 3px 3px 0 #2a1030;
+            letter-spacing: 0.06em;
+            text-align: center;
+        }
+        .ld-dots i {
+            display: inline-block;
+            opacity: 0;
+            animation: ldDot 1.8s linear infinite;
+        }
+        .ld-dots i:nth-child(1) { animation-delay: 0s; }
+        .ld-dots i:nth-child(2) { animation-delay: 0.15s; }
+        .ld-dots i:nth-child(3) { animation-delay: 0.30s; }
+        .ld-dots i:nth-child(4) { animation-delay: 0.45s; }
+        .ld-dots i:nth-child(5) { animation-delay: 0.60s; }
+        .ld-dots i:nth-child(6) { animation-delay: 0.75s; }
+        @keyframes ldDot {
+            0%,  4%   { opacity: 0; }
+            8%,  55%  { opacity: 1; }
+            60%, 100% { opacity: 0; }
+        }
+
+        /* ====================================================================
+           KONTROL VOLUME
+           ==================================================================== */
+        #volume-ui {
+            position: absolute;
+            top: 3.4%;
+            right: 8.5%;
+            z-index: 50;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+            padding: 0.5% 0.8%;
+            background: rgba(28, 20, 16, 0.72);
+            border: 2px solid #f6e7c8;
+            border-radius: 4px;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+        }
+        .vol-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.5rem, 0.85vw, 0.8rem);
+            line-height: 1;
+            color: #ffe9c8;
+            background: #4e3132;
+            border: 2px solid #f6e7c8;
+            padding: 0.35em 0.5em;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.12s ease, transform 0.08s ease;
+        }
+        .vol-btn:hover { background: #7a4a48; }
+        .vol-btn:active { transform: translateY(2px); }
+        .vol-bar {
+            display: flex;
+            gap: 2px;
+        }
+        .vol-bar i {
+            display: block;
+            width: clamp(3px, 0.42vw, 6px);
+            height: clamp(9px, 1.5vw, 18px);
+            background: #3a2a2a;
+            border: 1px solid #7a6250;
+            transition: background-color 0.1s ease;
+        }
+        .vol-bar i.on { background: #ffd28a; border-color: #f6e7c8; }
+        #vol-label {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.4rem, 0.7vw, 0.65rem);
+            color: #ffe9c8;
+            min-width: 3.4em;
+            text-align: right;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ld-sky > i, .ld-speed, .ld-horse, .ld-horse::before, .ld-horse::after, .ld-dots i {
+                animation: none !important;
+            }
+        }
+
         /* ====== LIGHTBOX FOTO ====== */
         #lightbox {
             position: fixed;
@@ -851,6 +1055,14 @@
                     .sidebar-interactive { pointer-events: auto; }
                 </style>
 
+
+            <!-- KONTROL VOLUME -->
+            <div id="volume-ui">
+                <div class="vol-btn" id="btn-vol-down" title="Volume turun">&minus;</div>
+                <div class="vol-bar" id="vol-bar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="vol-btn" id="btn-vol-up" title="Volume naik">+</div>
+                <span id="vol-label">50%</span>
+            </div>
 
             <!-- TOMBOL MUTE AUDIO -->
             <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; right: 2%; width: 5%; height: auto; z-index: 50; cursor: pointer; filter: drop-shadow(2px 2px 5px #000);">
@@ -1034,6 +1246,14 @@
         </div><!-- /dashboard-wrapper -->
     </div><!-- /screen-main -->
 
+    <!-- OVERLAY LOADING -->
+    <div id="loading-overlay" class="hidden" aria-hidden="true">
+        <div class="ld-sky"><i></i></div>
+        <div class="ld-speed"></div>
+        <div class="ld-horse"></div>
+        <p class="ld-text">menabung rinduu tunggu<span class="ld-dots"><i>.</i><i>.</i><i>.</i><i>.</i><i>.</i><i>.</i></span></p>
+    </div>
+
     <!-- LIGHTBOX FOTO -->
     <div id="lightbox" class="hidden">
         <img id="lightbox-img" src="" alt="">
@@ -1102,17 +1322,54 @@
             // Bingkai + sidebar tetap diam; hanya isi panel tengah yang bergulir
             const mainContentArea = document.getElementById('main-content-area');
 
+            // ================= TRANSISI LAYAR (overlay loading) =================
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const allScreens = [screenTitle, screenLogin, screenMain];
+            const FADE_MS = 350;
+            const HOLD_MS = 2500;
+            let transitionBusy = false;
+
+            function triggerTransition(targetScreenId, onArrive) {
+                if (transitionBusy) return;
+                transitionBusy = true;
+
+                // 1. munculkan overlay
+                loadingOverlay.classList.remove('hidden');
+                loadingOverlay.setAttribute('aria-hidden', 'false');
+                requestAnimationFrame(() => loadingOverlay.classList.add('show'));
+
+                // 2. tahan 2500 ms
+                setTimeout(() => {
+                    // 3. sembunyikan semua layar, tampilkan tujuannya
+                    allScreens.forEach(s => {
+                        s.classList.add('hidden');
+                        s.classList.remove('active');
+                    });
+                    const target = document.getElementById(targetScreenId);
+                    if (target) {
+                        target.classList.remove('hidden');
+                        target.classList.add('active');
+                    }
+                    if (typeof onArrive === 'function') onArrive();
+
+                    // 4. hilangkan overlay
+                    loadingOverlay.classList.remove('show');
+                    setTimeout(() => {
+                        loadingOverlay.classList.add('hidden');
+                        loadingOverlay.setAttribute('aria-hidden', 'true');
+                        transitionBusy = false;
+                    }, FADE_MS);
+                }, HOLD_MS);
+            }
+
             // 1. Aksi Title Screen ke Login
             btnStart.addEventListener('click', () => {
-                screenTitle.classList.add('hidden');
-                screenTitle.classList.remove('active');
-
-                screenLogin.classList.remove('hidden');
-                screenLogin.classList.add('active');
-
-                inputPassword.value = '';
-                errorMsg.classList.add('hidden');
-                inputPassword.focus();
+                startMusic();                       // interaksi pertama -> lolos aturan autoplay
+                triggerTransition('screen-login', () => {
+                    inputPassword.value = '';
+                    errorMsg.classList.add('hidden');
+                    inputPassword.focus();
+                });
             });
 
             // Aksi Cancel Login
@@ -1129,16 +1386,11 @@
             // 2. Aksi Login Validasi
             const attemptLogin = () => {
                 if (inputPassword.value === '01052026') {
-                    screenLogin.classList.add('hidden');
-                    screenLogin.classList.remove('active');
-
-                    screenMain.classList.remove('hidden');
-                    screenMain.classList.add('active');
-
-                    showView(viewDashboard);
-
-                    bgmAudio.volume = 0.3;
-                    bgmAudio.play().catch(e => console.log('Autoplay blocked:', e));
+                    triggerTransition('screen-main', () => {
+                        showView(viewDashboard);
+                        markActive(btnDashboardView);
+                        startMusic();
+                    });
                 } else {
                     errorMsg.classList.remove('hidden');
                 }
@@ -1191,7 +1443,8 @@
                     // Hentikan musik saat kembali ke judul
                     bgmAudio.pause();
                     bgmAudio.currentTime = 0;
-                    btnMute.style.opacity = '1';
+                    musicStarted = false;
+                    renderVolume();
                 });
             }
 
@@ -1235,15 +1488,55 @@
                 if (e.key === 'ArrowRight') lbShow(lbIndex + 1);
             });
 
+            // ================= MUSIK LATAR & VOLUME =================
+            const VOL_STEP = 0.1;
+            const volBar = document.getElementById('vol-bar');
+            const volLabel = document.getElementById('vol-label');
+            const volSegments = volBar ? Array.from(volBar.children) : [];
+            let volume = 0.5;                       // volume awal
+            let musicStarted = false;
+
+            function renderVolume() {
+                bgmAudio.volume = volume;
+                const steps = Math.round(volume * 10);
+                volSegments.forEach((seg, i) => seg.classList.toggle('on', i < steps));
+                const pct = Math.round(volume * 100);
+                if (volLabel) volLabel.textContent = pct + '%';
+                btnMute.style.opacity = (bgmAudio.paused || volume === 0) ? '0.45' : '1';
+                console.log('[BGM] volume ' + String(pct).padStart(3) + '%  ' +
+                            '\u2588'.repeat(steps) + '\u2591'.repeat(10 - steps));
+            }
+
+            function changeVolume(delta) {
+                // dijaga tetap di rentang 0.0 - 1.0, dibulatkan agar tidak jadi 0.30000000000000004
+                volume = Math.min(1, Math.max(0, Math.round((volume + delta) * 10) / 10));
+                renderVolume();
+            }
+
+            function startMusic() {
+                if (musicStarted) return;
+                musicStarted = true;
+                bgmAudio.volume = volume;
+                bgmAudio.play().catch(err => console.log('[BGM] autoplay ditolak browser:', err));
+            }
+
+            renderVolume();
+
+            document.getElementById('btn-vol-down').addEventListener('click', () => changeVolume(-VOL_STEP));
+            document.getElementById('btn-vol-up').addEventListener('click', () => changeVolume(VOL_STEP));
+
+            // cadangan: kalau musik belum jalan, mulai pada interaksi pertama apa pun
+            ['click', 'keydown'].forEach(ev =>
+                document.addEventListener(ev, startMusic, { once: true }));
+
             // 5. Aksi Tombol Mute Audio
             btnMute.addEventListener('click', () => {
                 if (bgmAudio.paused) {
                     bgmAudio.play();
-                    btnMute.style.opacity = '1';
                 } else {
                     bgmAudio.pause();
-                    btnMute.style.opacity = '0.45';
                 }
+                renderVolume();
             });
         });
     </script>
