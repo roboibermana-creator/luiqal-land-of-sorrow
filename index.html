@@ -30,6 +30,7 @@
         #scrolling-bg,
         .gallery-page,
         .guard,
+        .vol-btn,
         .ld-sky > i,
         .ld-horse,
         .petal-layer > i,
@@ -737,7 +738,7 @@
             width: 200vw;
             height: 100%;
             background: url('gambarpixel/anim/loading_sky.png') 0 0 / 100vw 100% repeat-x;
-            animation: ldSky 7s linear infinite;
+            animation: ldSky 9s linear infinite;
             will-change: transform;
         }
         @keyframes ldSky {
@@ -766,7 +767,7 @@
                 linear-gradient(180deg, transparent 24%, #000 40%, #000 76%, transparent 92%),
                 linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
             mask-composite: intersect;
-            animation: ldStreak 0.55s linear infinite;
+            animation: ldStreak 0.85s linear infinite;
         }
         @keyframes ldStreak {
             from { transform: translateX(0); }
@@ -782,12 +783,18 @@
             background-image: url('gambarpixel/anim/gallop_sheet.png');
             background-size: 200% 100%;
             background-repeat: no-repeat;
-            animation: ldGallop 0.24s steps(2) infinite;
+            animation: ldGallop 0.45s steps(2) infinite,
+                       ldBob 0.45s ease-in-out infinite;
             filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.35));
         }
         @keyframes ldGallop {
             from { background-position-x: 0%; }
             to   { background-position-x: 200%; }
+        }
+        /* satu ayunan per langkah -> fase melayangnya terasa */
+        @keyframes ldBob {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-2%); }
         }
         /* bayangan/jejak kecepatan di belakang kuda (kuda menghadap kiri) */
         .ld-horse::before,
@@ -799,13 +806,13 @@
             background-image: url('gambarpixel/anim/gallop_sheet.png');
             background-size: 200% 100%;
             background-repeat: no-repeat;
-            animation: ldGallop 0.24s steps(2) infinite;
+            animation: ldGallop 0.45s steps(2) infinite;
         }
         .ld-horse::before {
             transform: translateX(7%);
             opacity: 0.24;
             filter: brightness(1.5) saturate(0.35);
-            animation-delay: -0.12s;
+            animation-delay: -0.225s;   /* setengah siklus -> menampilkan frame lawannya */
         }
         .ld-horse::after {
             transform: translateX(14%);
@@ -855,26 +862,28 @@
             display: flex;
             align-items: center;
             gap: 0.5vw;
-            padding: 0.5% 0.8%;
-            background: rgba(28, 20, 16, 0.72);
-            border: 2px solid #f6e7c8;
+            padding: 0.35% 0.7%;
+            background: rgba(28, 20, 16, 0.62);
+            border: 2px solid rgba(246, 231, 200, 0.75);
             border-radius: 4px;
             box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
         }
         .vol-btn {
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.5rem, 0.85vw, 0.8rem);
-            line-height: 1;
-            color: #ffe9c8;
-            background: #4e3132;
-            border: 2px solid #f6e7c8;
-            padding: 0.35em 0.5em;
+            width: clamp(20px, 2.1vw, 32px);
+            aspect-ratio: 1;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
             cursor: pointer;
             user-select: none;
-            transition: background-color 0.12s ease, transform 0.08s ease;
+            transition: transform 0.1s ease, filter 0.12s ease;
         }
-        .vol-btn:hover { background: #7a4a48; }
-        .vol-btn:active { transform: translateY(2px); }
+        #btn-vol-down { background-image: url('gambarpixel/anim/btn_vol_down.png'); }
+        #btn-vol-up   { background-image: url('gambarpixel/anim/btn_vol_up.png'); }
+        .vol-btn:hover {
+            transform: scale(1.12);
+            filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 210, 130, 0.8));
+        }
+        .vol-btn:active { transform: scale(1.02) translateY(2px); }
         .vol-bar {
             display: flex;
             gap: 2px;
@@ -1058,9 +1067,9 @@
 
             <!-- KONTROL VOLUME -->
             <div id="volume-ui">
-                <div class="vol-btn" id="btn-vol-down" title="Volume turun">&minus;</div>
+                <div class="vol-btn" id="btn-vol-down" title="Volume turun" role="button" aria-label="Volume turun"></div>
                 <div class="vol-bar" id="vol-bar"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <div class="vol-btn" id="btn-vol-up" title="Volume naik">+</div>
+                <div class="vol-btn" id="btn-vol-up" title="Volume naik" role="button" aria-label="Volume naik"></div>
                 <span id="vol-label">50%</span>
             </div>
 
