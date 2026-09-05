@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Kisah Kopel Piksel</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans&display=swap');
 
         * {
             box-sizing: border-box;
@@ -1160,15 +1160,19 @@
         }
         .au-switch:active { transform: translateY(1px); }
 
-        /* label menu About Us di sidebar (yang lain sudah tergambar di mockup) */
+        /* Label menu About Us di sidebar; yang lain sudah tergambar di mockup.
+           Press Start 2P jauh lebih lebar per hurufnya, jadi kalau tingginya
+           disamakan teksnya melimpah keluar papan. Pixelify Sans proporsinya
+           mendekati huruf yang tergambar di mockup (tinggi huruf 'h' dan
+           perbandingan tinggi 'o' terhadapnya hampir sama). */
         .nav-label {
             position: absolute;
             left: 38%;
             top: 50%;
             transform: translateY(-50%);
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.3rem, 0.62vw, 0.56rem);
-            line-height: 1.5;
+            font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+            font-size: clamp(0.62rem, 1.7vw, 1.55rem);
+            line-height: 1.15;
             color: #d9dcc4;
             text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
             pointer-events: none;
@@ -1366,7 +1370,7 @@
                 <div id="btn-about-us"           class="nav-btn" style="left: 17.7%; top: 78.1%; width: 60%; height: 9%;"    title="About Us">
                     <img class="nav-ico" src="gambarpixel/anim/ico_about.png" alt=""
                          style="left: -3.67%; top: -1.5%; width: 35.41%; height: 98%;">
-                    <span class="nav-label">About Us</span>
+                    <span class="nav-label">about us</span>
                 </div>
 
                 <!-- Tombol keluar (tidak ada di mockup asli) -->
