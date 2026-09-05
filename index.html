@@ -912,6 +912,21 @@
         }
 
 
+        /* napas pasangan di layar judul: hanya diregangkan dari titik tumpu
+           di kaki, jadi kaki tetap menempel di lantai. Tarikan napas sedikit
+           lebih cepat daripada hembusannya supaya terasa seperti orang. */
+        #ttl-couple {
+            transform-origin: 50% 100%;
+            animation: coupleBreath 4.4s ease-in-out infinite;
+            will-change: transform;
+        }
+        @keyframes coupleBreath {
+            0%   { transform: scaleY(1); }
+            36%  { transform: scaleY(1.007); }
+            78%  { transform: scaleY(1.0008); }
+            100% { transform: scaleY(1); }
+        }
+
         /* ====================================================================
            HALAMAN ABOUT US
            ==================================================================== */
@@ -977,7 +992,7 @@
         .au-select-title {
             margin: 0;
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.5rem, 1.15vw, 0.95rem);
+            font-size: clamp(0.58rem, 1.3vw, 1.1rem);
             color: #f3e7cf;
             text-shadow: 3px 3px 0 #241a14;
             letter-spacing: 0.08em;
@@ -1006,7 +1021,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.4rem, 0.88vw, 0.78rem);
+            font-size: clamp(0.5rem, 1.05vw, 0.95rem);
             color: #e8a86a;
             text-shadow: 2px 2px 0 #2b1a12;
             letter-spacing: 0.04em;
@@ -1043,20 +1058,20 @@
         .au-rows > div { display: flex; flex-direction: column; align-items: flex-start; }
         .au-chip {
             display: inline-block;
-            padding: 0.32em 0.6em;
+            padding: 0.34em 0.62em;
             background: #5d3a2a;
             border: 2px solid #c69a63;
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.32rem, 0.66vw, 0.58rem);
+            font-size: clamp(0.4rem, 0.82vw, 0.72rem);
             color: #ffdca8;
             text-shadow: 1px 1px 0 #2b1a12;
             letter-spacing: 0.03em;
         }
         .au-val {
-            margin: 0.3em 0 0;
+            margin: 0.35em 0 0;
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.34rem, 0.72vw, 0.62rem);
-            line-height: 1.7;
+            font-size: clamp(0.4rem, 0.86vw, 0.74rem);
+            line-height: 1.6;
             color: #f1e6d2;
             text-shadow: 2px 2px 0 #241a14;
         }
@@ -1129,7 +1144,7 @@
             border: 2px solid #c69a63;
             box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.32rem, 0.62vw, 0.55rem);
+            font-size: clamp(0.38rem, 0.72vw, 0.64rem);
             color: #ffdca8;
             text-shadow: 1px 1px 0 #2b1a12;
             cursor: pointer;
@@ -1270,6 +1285,10 @@
                  style="position: absolute; left: 41.309%; top: 18.217%; width: 18.164%; height: 5.62%; z-index: 5;">
             <img id="ttl-adventure" src="gambarpixel/anim/title.png" alt="Our Adventure"
                  style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
+
+            <!-- pasangan dipotong dari latar supaya bisa bernapas -->
+            <img id="ttl-couple" src="gambarpixel/anim/couple.png" alt=""
+                 style="position: absolute; left: 37.891%; top: 46.512%; width: 25.586%; height: 47.868%; z-index: 2; pointer-events: none;">
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
             <div class="petal-layer petal-far" style="z-index: 3;"><i></i></div>
@@ -1622,9 +1641,12 @@
             const HOLD_MS = 2500;
             let transitionBusy = false;
 
+            let transitionSeq = 0;
+
             function triggerTransition(targetScreenId, onArrive) {
                 if (transitionBusy) return;
                 transitionBusy = true;
+                const seq = ++transitionSeq;
 
                 // 1. munculkan overlay
                 loadingOverlay.classList.remove('hidden');
@@ -1645,12 +1667,15 @@
                     }
                     if (typeof onArrive === 'function') onArrive();
 
-                    // 4. hilangkan overlay
+                    // 4. hilangkan overlay. Kunci dilepas begitu layar tujuan
+                    //    tampil -- kalau menunggu animasi pudar selesai, klik
+                    //    dalam 350 ms pertama akan hilang tanpa jejak.
+                    transitionBusy = false;
                     loadingOverlay.classList.remove('show');
                     setTimeout(() => {
+                        if (seq !== transitionSeq) return;   // sudah ada transisi baru
                         loadingOverlay.classList.add('hidden');
                         loadingOverlay.setAttribute('aria-hidden', 'true');
-                        transitionBusy = false;
                     }, FADE_MS);
                 }, HOLD_MS);
             }
