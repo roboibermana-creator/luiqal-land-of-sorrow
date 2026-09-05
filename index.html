@@ -911,6 +911,242 @@
             }
         }
 
+
+        /* ====================================================================
+           HALAMAN ABOUT US
+           ==================================================================== */
+        #view-about-us {
+            background: url('gambarpixel/anim/au/bg_corridor.png') center bottom / cover no-repeat;
+        }
+        .au-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2.5%;
+        }
+        #au-profile {
+            justify-content: flex-start;
+            padding: 3.5% 0 2.5%;
+            gap: 1.8%;
+        }
+        #au-stage {
+            flex: 1 1 auto;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ---- pilih karakter ---- */
+        .au-select-frame {
+            display: flex;
+            gap: 4%;
+            padding: 2.2% 3%;
+            background: rgba(28, 34, 26, 0.82);
+            border: 3px solid #8b7d63;
+            box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 4px 4px 0 rgba(0, 0, 0, 0.4);
+        }
+        .au-choice {
+            padding: 5px;
+            border: 3px solid #8b7d63;
+            background: rgba(12, 10, 14, 0.75);
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+        }
+        .au-choice img {
+            display: block;
+            height: clamp(70px, 13vw, 165px);
+            width: auto;
+        }
+        .au-choice:hover {
+            transform: translateY(-4px);
+            border-color: #ffd28a;
+            box-shadow: 0 0 14px rgba(255, 210, 130, 0.8);
+        }
+        .au-select-title {
+            margin: 0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.5rem, 1.15vw, 0.95rem);
+            color: #f3e7cf;
+            text-shadow: 3px 3px 0 #241a14;
+            letter-spacing: 0.08em;
+        }
+
+        /* ---- panel profil ---- */
+        .au-panel {
+            position: relative;
+            height: 100%;
+            width: auto;
+            max-width: 84%;
+            aspect-ratio: 279 / 234;
+            background: url('gambarpixel/anim/au/panel_profile.png') 0 0 / 100% 100% no-repeat;
+            display: flex;
+            flex-direction: column;
+        }
+        .au-panel.au-two {
+            aspect-ratio: 207 / 155;
+            background-image: url('gambarpixel/anim/au/frame_two_slots.png');
+        }
+        .au-title {
+            position: absolute;
+            top: 2.4%;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            text-align: center;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.42rem, 0.92vw, 0.8rem);
+            color: #e8a86a;
+            text-shadow: 2px 2px 0 #2b1a12;
+            letter-spacing: 0.04em;
+        }
+        .au-two .au-title { top: 3.5%; }
+        /* bagian dalam panel halaman 1 tembus pandang -> beri alas gelap */
+        .au-fill {
+            position: absolute;
+            left: 13.2%;
+            top: 22%;
+            width: 83.6%;
+            height: 72%;
+            background: rgba(30, 41, 29, 0.93);
+        }
+
+        /* halaman 1: potret + baris data */
+        .au-body1 {
+            position: absolute;
+            left: 8%;
+            top: 21.5%;
+            width: 84%;
+            height: 73%;
+            display: flex;
+            gap: 3.5%;
+            align-items: flex-start;
+        }
+        .au-portrait {
+            flex: 0 0 27%;
+            width: 27%;
+            height: auto;
+            border: 3px solid #b39b74;
+            background: #241d24;
+            box-shadow: 0 0 0 2px #2b211a, 3px 3px 0 rgba(0, 0, 0, 0.45);
+        }
+        .au-rows {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .au-chip {
+            display: inline-block;
+            padding: 0.32em 0.6em;
+            background: #5d3a2a;
+            border: 2px solid #c69a63;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.32rem, 0.66vw, 0.58rem);
+            color: #ffdca8;
+            text-shadow: 1px 1px 0 #2b1a12;
+            letter-spacing: 0.03em;
+        }
+        .au-val {
+            margin: 0.3em 0 0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.34rem, 0.72vw, 0.62rem);
+            line-height: 1.7;
+            color: #f1e6d2;
+            text-shadow: 2px 2px 0 #241a14;
+        }
+
+        /* halaman 2-4: dua slot */
+        .au-slots {
+            position: absolute;
+            inset: 0;
+        }
+        /* posisi mengikuti bingkai slot yang tergambar di frame_two_slots.png */
+        .au-slots .au-chip,
+        .au-slots .au-val {
+            position: absolute;
+            transform: translateX(-50%);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .au-slots .au-chip { top: 27.5%; }
+        .au-slots .au-val  { top: 78.5%; margin: 0; }
+        .au-c1 { left: 29.47%; }
+        .au-c2 { left: 71.74%; }
+        .au-slot-box {
+            position: absolute;
+            top: 40.65%;
+            height: 32.9%;
+            /* bagian dalam slot tembus pandang -> beri alas agar ikon konsisten */
+            background: rgba(30, 41, 29, 0.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .au-b1 { left: 16.91%; width: 25.12%; }
+        .au-b2 { left: 58.94%; width: 25.60%; }
+        .au-slot-box img {
+            max-width: 96%;
+            max-height: 96%;
+            width: auto;
+            height: auto;
+            filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.45));
+            transition: transform 0.15s ease;
+        }
+        .au-slot-box:hover img { transform: scale(1.08) translateY(-3px); }
+
+        /* ---- navigasi halaman ---- */
+        .au-pager {
+            display: flex;
+            align-items: center;
+            gap: 1.2%;
+        }
+        .au-pg {
+            height: clamp(20px, 3.4vw, 42px);
+            width: auto;
+            cursor: pointer;
+            transition: transform 0.1s ease, filter 0.12s ease;
+        }
+        .au-num { filter: brightness(0.72) saturate(0.5); }
+        .au-pg:hover { transform: translateY(-2px); filter: brightness(1.1) saturate(0.9); }
+        .au-pg.active,
+        .au-num.active {
+            filter: brightness(1.3) saturate(1.15) drop-shadow(0 0 6px rgba(255, 210, 130, 0.95));
+            transform: scale(1.12);
+        }
+        .au-pg.off { opacity: 0.35; cursor: default; pointer-events: none; }
+        .au-switch {
+            margin-top: 0.6%;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.32rem, 0.62vw, 0.55rem);
+            color: #cbbfa6;
+            text-shadow: 2px 2px 0 #241a14;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+        }
+        .au-switch:hover { color: #ffd28a; }
+
+        /* label menu About Us di sidebar (yang lain sudah tergambar di mockup) */
+        .nav-label {
+            position: absolute;
+            left: 38%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.3rem, 0.62vw, 0.56rem);
+            line-height: 1.5;
+            color: #d9dcc4;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
         /* ====== LIGHTBOX FOTO ====== */
         #lightbox {
             position: fixed;
@@ -1095,6 +1331,11 @@
                     <img class="nav-ico" src="gambarpixel/anim/ico_romance.png" alt=""
                          style="left: -3.67%; top: -4.34%; width: 35.41%; height: 97.75%;">
                 </div>
+                <div id="btn-about-us"           class="nav-btn" style="left: 17.7%; top: 78.1%; width: 60%; height: 9%;"    title="About Us">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_about.png" alt=""
+                         style="left: -3.67%; top: -1.5%; width: 35.41%; height: 98%;">
+                    <span class="nav-label">About Us</span>
+                </div>
 
                 <!-- Tombol keluar (tidak ada di mockup asli) -->
                 <img id="btn-logout" src="gambarpixel/back icon .png" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
@@ -1224,6 +1465,34 @@
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance7.jpg" data-full="photo/photoromance/page 3/photo_romance7.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance8.jpg" data-full="photo/photoromance/page 3/photo_romance8.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance9.jpg" data-full="photo/photoromance/page 3/photo_romance9.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
+                    </div>
+                </div>
+
+                <!-- ABOUT US -->
+                <div id="view-about-us" class="view-section hidden" style="position: absolute; width: 100%; height: 100%; overflow: hidden;">
+                    <div id="au-select" class="au-screen">
+                        <div class="au-select-frame">
+                            <div class="au-choice" data-char="men" title="Rowland">
+                                <img src="gambarpixel/anim/au/portrait_knight.png" alt="Rowland">
+                            </div>
+                            <div class="au-choice" data-char="women" title="Princess">
+                                <img src="gambarpixel/anim/au/portrait_princess.png" alt="Princess">
+                            </div>
+                        </div>
+                        <p class="au-select-title">CHOOSE YOUR CHARACTER</p>
+                    </div>
+
+                    <div id="au-profile" class="au-screen hidden">
+                        <div id="au-stage"></div>
+                        <div class="au-pager">
+                            <img class="au-pg" id="au-prev" src="gambarpixel/anim/au/pg_prev.png" alt="Sebelumnya">
+                            <img class="au-pg au-num" data-page="1" src="gambarpixel/anim/au/pg_1.png" alt="1">
+                            <img class="au-pg au-num" data-page="2" src="gambarpixel/anim/au/pg_2.png" alt="2">
+                            <img class="au-pg au-num" data-page="3" src="gambarpixel/anim/au/pg_3.png" alt="3">
+                            <img class="au-pg au-num" data-page="4" src="gambarpixel/anim/au/pg_4.png" alt="4">
+                            <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next.png" alt="Berikutnya">
+                        </div>
+                        <div class="au-switch" id="au-switch">&gt; GANTI KARAKTER &lt;</div>
                     </div>
                 </div>
 
@@ -1374,11 +1643,11 @@
             // 1. Aksi Title Screen ke Login
             btnStart.addEventListener('click', () => {
                 startMusic();                       // interaksi pertama -> lolos aturan autoplay
-                triggerTransition('screen-login', () => {
-                    inputPassword.value = '';
-                    errorMsg.classList.add('hidden');
-                    inputPassword.focus();
-                });
+                // kolom dibersihkan saat transisi dimulai, bukan saat mendarat, supaya
+                // ketikan yang masuk tepat setelah layar muncul tidak ikut terhapus
+                inputPassword.value = '';
+                errorMsg.classList.add('hidden');
+                triggerTransition('screen-login', () => inputPassword.focus());
             });
 
             // Aksi Cancel Login
@@ -1457,6 +1726,113 @@
                 });
             }
 
+
+
+            // ================= ABOUT US =================
+            const AU = 'gambarpixel/anim/au/';
+            const AU_DATA = {
+                men: {
+                    nama: 'LOML',
+                    portrait: AU + 'portrait_knight.png',
+                    profil: [
+                        ['NAMA ASLI', 'Muhamad Iqbal Hidayat'],
+                        ['TEMPAT &amp; TANGGAL LAHIR', 'Bandung, 17 Maret 2006'],
+                        ['HOBI', 'Main basket, dan main games'],
+                        ['WARNA KESUKAAN', 'Hitam dan Merah']
+                    ],
+                    halaman: [
+                        [['MAKANAN FAVORIT', 'mie_ayam', 'Mie Ayam'], ['MINUMAN FAVORIT', 'kopi', 'Kopi']],
+                        [['LOKASI FAVORIT 1', 'gunung', 'Gunung'], ['LOKASI FAVORIT 2', 'luar_angkasa', 'Luar Angkasa']],
+                        [['HEWAN KESUKAAN 1', 'serigala', 'Serigala'], ['HEWAN KESUKAAN 2', 'burung_hantu', 'Burung Hantu']]
+                    ]
+                },
+                women: {
+                    nama: 'ZBUB',
+                    portrait: AU + 'portrait_princess.png',
+                    profil: [
+                        ['NAMA ASLI', 'Azzahra Azka Lulu Azminah'],
+                        ['TEMPAT &amp; TANGGAL LAHIR', 'Bandung, 1 Mei 2007'],
+                        ['HOBI', 'Tidur'],
+                        ['WARNA KESUKAAN', 'Pink dan Cokelat']
+                    ],
+                    halaman: [
+                        [['MAKANAN FAVORIT', 'donut', 'Donut'], ['MINUMAN FAVORIT', 'matcha', 'Matcha']],
+                        [['LOKASI FAVORIT 1', 'mall', 'Mall'], ['LOKASI FAVORIT 2', 'bukit', 'Bukit']],
+                        [['HEWAN KESUKAAN 1', 'kucing', 'Kucing'], ['HEWAN KESUKAAN 2', 'hamster', 'Hamster']]
+                    ]
+                }
+            };
+
+            const auSelect = document.getElementById('au-select');
+            const auProfile = document.getElementById('au-profile');
+            const auStage = document.getElementById('au-stage');
+            const auNums = Array.from(document.querySelectorAll('.au-num'));
+            const auPrev = document.getElementById('au-prev');
+            const auNext = document.getElementById('au-next');
+            let auChar = null;      // 'men' | 'women'
+            let auPage = 1;         // 1..4
+
+            function auRender() {
+                if (!auChar) return;
+                const d = AU_DATA[auChar];
+                const judul = 'PERSONAL PROFILE: ' + d.nama;
+
+                if (auPage === 1) {
+                    auStage.innerHTML =
+                        '<div class="au-panel">' +
+                            '<div class="au-fill"></div>' +
+                            '<h3 class="au-title">' + judul + '</h3>' +
+                            '<div class="au-body1">' +
+                                '<img class="au-portrait" src="' + d.portrait + '" alt="">' +
+                                '<div class="au-rows">' +
+                                    d.profil.map(r =>
+                                        '<div><span class="au-chip">' + r[0] + '</span>' +
+                                        '<p class="au-val">' + r[1] + '</p></div>').join('') +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+                } else {
+                    const pasangan = d.halaman[auPage - 2];
+                    auStage.innerHTML =
+                        '<div class="au-panel au-two">' +
+                            '<h3 class="au-title">' + judul + '</h3>' +
+                            '<div class="au-slots">' +
+                                pasangan.map((s, i) => {
+                                    const n = i + 1;
+                                    return '<span class="au-chip au-c' + n + '">' + s[0] + '</span>' +
+                                           '<div class="au-slot-box au-b' + n + '"><img src="' + AU + s[1] + '.png" alt="' + s[2] + '"></div>' +
+                                           '<p class="au-val au-v' + n + '" style="left:' + (n === 1 ? '29.47' : '71.74') + '%">' + s[2] + '</p>';
+                                }).join('') +
+                            '</div>' +
+                        '</div>';
+                }
+
+                auNums.forEach(n => n.classList.toggle('active', +n.dataset.page === auPage));
+                auPrev.classList.toggle('off', auPage === 1);
+                auNext.classList.toggle('off', auPage === 4);
+            }
+
+            function auShowChar(karakter) {
+                auChar = karakter;
+                auPage = 1;
+                auSelect.classList.add('hidden');
+                auProfile.classList.remove('hidden');
+                auRender();
+            }
+
+            document.querySelectorAll('.au-choice').forEach(c =>
+                c.addEventListener('click', () => auShowChar(c.dataset.char)));
+            auNums.forEach(n => n.addEventListener('click', () => { auPage = +n.dataset.page; auRender(); }));
+            auPrev.addEventListener('click', () => { if (auPage > 1) { auPage--; auRender(); } });
+            auNext.addEventListener('click', () => { if (auPage < 4) { auPage++; auRender(); } });
+            document.getElementById('au-switch').addEventListener('click', () => {
+                auProfile.classList.add('hidden');
+                auSelect.classList.remove('hidden');
+            });
+
+            const viewAboutUs = document.getElementById('view-about-us');
+            const btnAboutUs = document.getElementById('btn-about-us');
+            btnAboutUs.addEventListener('click', () => { markActive(btnAboutUs); showView(viewAboutUs); });
 
             // ================= LIGHTBOX FOTO =================
             const lightbox = document.getElementById('lightbox');
