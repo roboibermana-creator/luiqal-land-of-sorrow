@@ -908,6 +908,29 @@
             inset: 0;
             pointer-events: none;
         }
+
+        /* ---- animasi masuk sinematik ----
+           Hanya #ttl-art yang diberi animasi, dan isinya cuma lapisan gambar.
+           Yang dianimasikan hanya transform dan opacity supaya tidak memicu
+           perhitungan tata letak ulang. Kelasnya dicopot lagi setelah selesai
+           (lihat JS) supaya lapisan tidak terus ditahan di memori grafis dan
+           tidak menyisakan sisa transform. */
+        #ttl-art {
+            position: absolute;
+            inset: 0;
+        }
+        #ttl-bg {
+            position: absolute;
+            inset: 0;
+            background: url('gambarpixel/anim/title_bg_clean_hi.jpg') center / cover no-repeat;
+        }
+        #ttl-art.masuk {
+            animation: heroSettle 1.5s ease-out both;
+        }
+        @keyframes heroSettle {
+            from { opacity: 0; transform: scale(1.05); }
+            to   { opacity: 1; transform: scale(1); }
+        }
         .cp-frame {
             position: absolute;
             inset: 0;
@@ -951,31 +974,26 @@
             50%      { transform: translateY(-14%) scale(1.06); }
         }
 
-        /* kucing berjalan: lembar 6 frame */
+        /* Kucing: lembar 12 frame (jalan 1-5, duduk 6, menjilat 7-12).
+           Frame-nya digerakkan dari JS, bukan steps(), karena urutannya
+           bercabang: berjalan berputar, lalu pindah sekali ke duduk, lalu
+           menjilat, lalu berputar di 6-12 saja. Perpindahan mendatarnya
+           tetap animasi CSS (transform) supaya tetap ringan.
+           Tinggi dan garis dasarnya dijaga sama seperti lembar lama, jadi
+           kucingnya tidak bergeser dari tempat semula. */
         #ttl-cat {
             position: absolute;
             left: 0;
             top: 84.5%;
-            width: 5.6%;
-            aspect-ratio: 319 / 272;
+            height: 9.47%;
+            aspect-ratio: 190 / 222;
             z-index: 4;
-            background: url('gambarpixel/anim/cat_walk.png') 0 0 / 600% 100% no-repeat;
-            animation: catStep 0.72s steps(6) infinite,
-                       catCross 8s linear forwards;
-        }
-        @keyframes catStep {
-            from { background-position-x: 0%; }
-            to   { background-position-x: 600%; }
+            background: url('gambarpixel/anim/cat_walk_groom.png') 0 0 / 1200% 100% no-repeat;
+            animation: catCross 8s linear forwards;
         }
         @keyframes catCross {
-            from { transform: translateX(-130%); }
-            to   { transform: translateX(620%); }
-        }
-        /* sampai di depan mereka -> kucing berhenti, kembali ke frame berdiri */
-        #hero-scene.reacting #ttl-cat {
-            animation: none;
-            background-position-x: 0%;
-            transform: translateX(620%);
+            from { transform: translateX(-178%); }
+            to   { transform: translateX(846%); }
         }
 
         /* Napas pasangan di layar judul.
@@ -1550,7 +1568,7 @@
 
     <!-- WADAH 1: TITLE SCREEN -->
     <div id="screen-title" class="active full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg_clean_hi.jpg');">
+        <div class="stage" id="title-stage">
 
             <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
             <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
@@ -1563,9 +1581,15 @@
 
             <!-- Adegan berlapis: kucing lewat -> pasangan menoleh & tersenyum -> hati muncul -->
             <div id="hero-scene">
-                <div id="ttl-couple">
-                    <img class="cp-frame" src="gambarpixel/anim/couple_calm.png" alt="Ksatria dan tuan putri">
-                    <img class="cp-frame cp-smile" src="gambarpixel/anim/couple_smile.png" alt="">
+                <!-- HANYA lapisan gambar yang masuk ke sini: latar + sosok
+                     pasangan. Teks, tombol, hati, dan kucing sengaja di luar
+                     supaya tidak ikut diskalakan (bikin buram & geser). -->
+                <div id="ttl-art">
+                    <div id="ttl-bg"></div>
+                    <div id="ttl-couple">
+                        <img class="cp-frame" src="gambarpixel/anim/couple_calm.png" alt="Ksatria dan tuan putri">
+                        <img class="cp-frame cp-smile" src="gambarpixel/anim/couple_smile.png" alt="">
+                    </div>
                 </div>
                 <div id="ttl-heart"><i></i></div>
                 <div id="ttl-cat"></div>
@@ -2048,6 +2072,10 @@
                     screenTitle.classList.remove('hidden');
                     screenTitle.classList.add('active');
 
+                    // animasi masuk diputar lagi setiap kembali ke layar judul;
+                    // kucing sengaja tidak diusik supaya tidak patah di tengah
+                    mainkanSettle();
+
                     // Hentikan musik saat kembali ke judul
                     bgmAudio.pause();
                     bgmAudio.currentTime = 0;
@@ -2248,11 +2276,77 @@
                 bgmAudio.play().catch(err => console.log('[BGM] autoplay ditolak browser:', err));
             }
 
+            // ---- animasi masuk sinematik lapisan gambar layar judul ----
+            const ttlArt = document.getElementById('ttl-art');
+
+            function mainkanSettle() {
+                if (!ttlArt) return;
+                ttlArt.classList.remove('masuk');
+                void ttlArt.offsetWidth;          // paksa hitung ulang supaya bisa diputar lagi
+                ttlArt.classList.add('masuk');
+            }
+            if (ttlArt) {
+                // kelas dicopot begitu selesai: tidak ada sisa transform, dan
+                // lapisannya kembali dirender seperti biasa (tetap tajam)
+                ttlArt.addEventListener('animationend', e => {
+                    if (e.animationName === 'heroSettle') ttlArt.classList.remove('masuk');
+                });
+                mainkanSettle();
+            }
+
             // ---- adegan layar judul: kucing tiba -> pasangan tersenyum, hati muncul ----
             const heroScene = document.getElementById('hero-scene');
             const ttlCat = document.getElementById('ttl-cat');
+
+            // Penggerak frame kucing. Berdiri sendiri, tidak tersentuh animasi
+            // masuk -- jadi kucing tidak ter-reset saat pengguna kembali ke
+            // layar judul.
+            const CAT_FRAME = 12;
+            const CAT_MS = 140;
+            const catUrutan = {
+                jalan:  [0, 1, 2, 3],                  // frame 1-4: langkah
+                duduk:  [4, 5],                        // frame 5-6: berhenti lalu duduk
+                dandan: [6, 7, 8, 9, 10, 11],          // frame 7-12: menjilat tangan
+                diam:   [5, 6, 7, 8, 9, 10, 11]        // frame 6-12: diulang selama diam
+            };
+            let catUrut = catUrutan.jalan, catUlang = true, catIdx = 0, catLanjut = null;
+
+            function catGambar() {
+                if (ttlCat) ttlCat.style.backgroundPositionX = (catUrut[catIdx] * 100 / (CAT_FRAME - 1)) + '%';
+            }
+            function catPasang(urut, ulang, lanjut) {
+                catUrut = urut; catUlang = ulang; catLanjut = lanjut || null; catIdx = 0;
+                catGambar();
+            }
+            function catDetak() {
+                catIdx++;
+                if (catIdx >= catUrut.length) {
+                    if (catUlang) {
+                        catIdx = 0;
+                    } else if (catLanjut) {
+                        const f = catLanjut; catLanjut = null; f(); return;
+                    } else {
+                        catIdx = catUrut.length - 1;
+                    }
+                }
+                catGambar();
+            }
+
             if (heroScene && ttlCat) {
-                const bereaksi = () => heroScene.classList.add('reacting');
+                catGambar();
+                setInterval(catDetak, CAT_MS);
+
+                let sudahBereaksi = false;
+                const bereaksi = () => {
+                    if (sudahBereaksi) return;
+                    sudahBereaksi = true;
+                    heroScene.classList.add('reacting');
+                    ttlCat.style.transform = 'translateX(846%)';   // berhenti di tempat
+                    // duduk sekali jalan -> menjilat sekali jalan -> berputar di 6-12
+                    catPasang(catUrutan.duduk, false, () =>
+                        catPasang(catUrutan.dandan, false, () =>
+                            catPasang(catUrutan.diam, true)));
+                };
                 // dipicu saat langkah kucing selesai; ada cadangan waktu kalau
                 // animasi tidak pernah mengirim event (mis. tab tidak aktif)
                 ttlCat.addEventListener('animationend', e => {
