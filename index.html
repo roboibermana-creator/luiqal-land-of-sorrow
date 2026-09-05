@@ -977,31 +977,37 @@
             50%      { transform: translateY(-14%) scale(1.06); }
         }
 
-        /* BURUNG BERTENGGER DI POHON KIRI
-           Dua kotak berukuran sama ditumpuk: #ttl-perch (dahan, statis) dan
-           #ttl-bird (burung). Semua lembar burung memakai sel yang sama dan
-           disejajarkan terhadap dahan, jadi hinggap/lepas landas tidak
-           meloncat, dan dahannya tetap di pohon saat burung pergi.
-           Frame digerakkan JS (urutannya bercabang); jalur terbang memakai
-           transform CSS. */
-        #ttl-perch,
+        /* POHON + BURUNG BERTENGGER
+           pohon.png dipasang sebagai lapisan sendiri menimpa pohon kiri yang
+           menyatu di latar. Titik hinggapnya di-HARDCODE: px (535, 860) pada
+           gambar 1024x1536 = permukaan atas dahan yang menonjol ke kanan.
+           Burung dan gelembung adalah ANAK elemen pohon dan diposisikan dalam
+           persen kotak pohon, jadi titik hinggapnya ikut ke mana pun pohon
+           diskalakan -- bukan relatif ke panggung. Titik hinggap di dalam sel
+           burung (px 344,452 dari 636x633) ditaruh tepat di titik itu. */
+        #ttl-tree {
+            position: absolute;
+            left: -5.188%;
+            top: -16.279%;
+            width: 31.250%;
+            aspect-ratio: 1024 / 1536;
+            z-index: 3;
+            background: url('gambarpixel/anim/pohon untuk burung.png') 0 0 / 100% 100% no-repeat;
+            pointer-events: none;
+        }
+        #ttl-tree > #ttl-bird {
+            left: 36.928%;
+            top: 42.572%;
+            width: 28.320%;
+            z-index: 2;                     /* di atas pohon, di bawah gelembung */
+        }
         #ttl-bird {
             position: absolute;
-            left: 12.4%;
-            top: 30.2%;
-            width: 8.2%;
             aspect-ratio: 636 / 633;
-            z-index: 4;
-        }
-        #ttl-perch {
-            background: url('gambarpixel/anim/bird_perch.png') 0 0 / 100% 100% no-repeat;
-            z-index: 3;
-        }
-        #ttl-bird {
             background-image: url('gambarpixel/anim/bird_idle.png');
             background-size: 200% 100%;
             background-repeat: no-repeat;
-            transform-origin: 50% 71.41%;     /* garis hinggap */
+            transform-origin: 54.09% 71.41%;   /* titik hinggap di dalam sel */
         }
         /* hanya saat diam burung bisa disapa */
         #ttl-bird.diam { pointer-events: auto; cursor: var(--kursor), pointer; }
@@ -1029,16 +1035,16 @@
         /* gelembung "Cip cip~" -- pola yang sama dengan gelembung kucing */
         .bird-bubble {
             position: absolute;
-            left: 58%;
-            bottom: 88%;
-            width: 150%;
+            left: 54.116%;
+            bottom: 51.673%;
+            width: 45.898%;
             aspect-ratio: 1026 / 460;
             background: url('gambarpixel/anim/emote_burung.png') 0 0 / 100% 100% no-repeat;
             transform: translateX(-49.95%);
             transform-origin: 49.95% 100%;
             opacity: 0;
             pointer-events: none;
-            z-index: 2;
+            z-index: 3;                     /* selalu di atas burung */
         }
         .bird-bubble.tampil { animation: birdBubblePop 1.9s ease-out forwards; }
         @keyframes birdBubblePop {
@@ -1712,9 +1718,12 @@
                 </div>
                 <div id="ttl-heart"><i></i></div>
                 <div id="ttl-cat" title="Elus kucingnya"><i class="cat-bubble"></i></div>
-                <!-- burung bertengger: dahan statis di bawah, burung di atasnya (kotak sama) -->
-                <div id="ttl-perch"></div>
-                <div id="ttl-bird" title="Sapa burungnya"><i class="bird-bubble"></i></div>
+                <!-- pohon sebagai lapisan sendiri; burung dan gelembungnya ANAK pohon,
+                     jadi keduanya ikut titik hinggap dahan di ukuran layar apa pun -->
+                <div id="ttl-tree">
+                    <div id="ttl-bird" title="Sapa burungnya"></div>
+                    <i class="bird-bubble"></i>
+                </div>
             </div>
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
@@ -2486,7 +2495,7 @@
             // ---- BURUNG BERTENGGER: diam -> (klik) bersiap -> terbang -> pergi -> pulang -> diam ----
             const ttlBird = document.getElementById('ttl-bird');
             if (ttlBird) {
-                const birdBubble = ttlBird.querySelector('.bird-bubble');
+                const birdBubble = document.querySelector('#ttl-tree .bird-bubble');
                 const BIRD = {                       // frame per lembar & jeda antar frame
                     diam:    { n: 2, ms: 480 },
                     bersiap: { n: 3, ms: 170 },
