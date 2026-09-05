@@ -400,8 +400,10 @@
         /* ====== PANGGUNG (stage) untuk layar judul & password ====== */
         .stage {
             position: relative;
-            width: 100vw;
-            max-width: 1400px;
+            /* selain dibatasi lebar layar, panggung juga dibatasi tingginya --
+               kalau tidak, di layar pendek (HP dimiringkan) bagian bawahnya
+               terpotong karena perbandingan sisinya 1024:516 */
+            width: min(100vw, 1400px, calc(100vh * 1024 / 516));
             aspect-ratio: 1024/516;
             background-position: center;
             background-size: cover;
@@ -965,10 +967,22 @@
             gap: 4%;
             width: 100%;
         }
+        /* ---- mesin geser: bingkai + lintasan ---- */
         #au-stage {
             flex: 1 1 auto;
             min-height: 0;
             width: 100%;
+            overflow: hidden;          /* bingkai monitor: yang di luar disembunyikan */
+        }
+        #au-track {
+            display: flex;
+            width: 400%;               /* empat halaman dipaksa berjajar menyamping */
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+        .au-slide {
+            width: 25%;                /* seperempat lintasan = selebar bingkai */
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1190,6 +1204,48 @@
             white-space: nowrap;
         }
 
+        /* ====== PEMUTAR MUSIK (posisi tetap di layar) ====== */
+        #music-bar {
+            position: fixed;
+            left: 1.1vw;
+            top: 1.1vw;
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            gap: 0.8vw;
+            padding: 0.45vw 0.9vw;
+            background: rgba(28, 20, 16, 0.72);
+            border: 2px solid rgba(246, 231, 200, 0.75);
+            border-radius: 4px;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+        }
+        .mus-btn {
+            height: clamp(20px, 2.1vw, 34px);
+            width: auto;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease, filter 0.12s ease;
+        }
+        #btn-play { height: clamp(28px, 3vw, 48px); }
+        .mus-btn:hover {
+            transform: scale(1.12);
+            filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 210, 130, 0.8));
+        }
+        .mus-btn:active { transform: scale(1.02) translateY(2px); }
+        /* saat dijeda, harpa diredupkan */
+        #btn-play.jeda { filter: grayscale(0.65) brightness(0.62); }
+        #btn-play.jeda:hover { filter: grayscale(0.2) brightness(1.05); }
+        #mus-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(0.3rem, 0.58vw, 0.5rem);
+            color: #ffdca8;
+            text-shadow: 1px 1px 0 #2b1a12;
+            max-width: 11vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         /* ====== LIGHTBOX FOTO ====== */
         #lightbox {
             position: fixed;
@@ -1335,7 +1391,7 @@
     <!-- WADAH 3: MAIN DASHBOARD -->
     <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
         <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
-        <div id="dashboard-wrapper" style="position: relative; width: 100vw; max-width: 1400px; aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
+        <div id="dashboard-wrapper" style="position: relative; width: min(100vw, 1400px, calc(100vh * 1024 / 516)); aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
             <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
 
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
@@ -1344,7 +1400,120 @@
                     #main-content-area { pointer-events: auto; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
                     #main-content-area::-webkit-scrollbar { display: none; }
                     .sidebar-interactive { pointer-events: auto; }
-                </style>
+            
+        /* ==================================================================
+           TATA LETAK LAYAR KECIL (HP) - sengaja ditaruh paling bawah supaya
+           aturannya menimpa yang di atas.
+           ================================================================== */
+        @media (max-width: 768px) {
+            /* --- alur menyamping dijadikan menurun --- */
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                gap: 16px;
+            }
+            .sidebar { flex: 0 0 auto; }
+            .au-select-frame { flex-direction: column; gap: 3vw; }
+            #view-profile > div {
+                flex-direction: column;
+                align-items: center;
+                gap: 18px;
+                padding: 6vw;
+                width: 90%;
+            }
+            #view-profile > div > div { width: 90%; }
+
+            /* --- lebar tetap dijadikan relatif --- */
+            #screen-login .pixel-box { width: 90%; max-width: 450px; }
+            .item-slot { width: 18vw; height: 18vw; max-width: 70px; max-height: 70px; }
+            #screen-main { padding: 12px; }
+            .au-choice img { height: clamp(64px, 22vw, 130px); }
+            /* --- huruf ikut menyusut bersama panggungnya ---
+               batas bawah clamp diturunkan; kalau tidak, huruf tetap
+               berukuran layar besar dan meluber keluar kotaknya. */
+            .au-title  { font-size: clamp(0.34rem, 1.05vw, 0.95rem); }
+            .au-chip   { font-size: clamp(0.28rem, 0.82vw, 0.72rem); padding: 0.3em 0.45em; border-width: 1px; }
+            .au-val    { font-size: clamp(0.3rem, 0.86vw, 0.74rem); }
+            .au-switch { font-size: clamp(0.28rem, 0.72vw, 0.64rem); padding: 0.5em 0.8em; border-width: 1px; }
+            .au-select-title { font-size: clamp(0.4rem, 1.3vw, 1.1rem); }
+            .nav-label { font-size: clamp(0.34rem, 1.7vw, 1.55rem); }
+            #vol-label { font-size: clamp(0.3rem, 0.75vw, 0.6rem); }
+
+            /* --- pemutar musik dipindah ke tengah bawah biar mudah dijangkau --- */
+            #music-bar {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                top: 8px;
+                gap: 10px;
+                padding: 6px 12px;
+            }
+            .mus-btn { height: 26px; }
+            #btn-play { height: 36px; }
+            #mus-title { max-width: 38vw; font-size: 0.42rem; }
+        }
+
+        /* HP dalam posisi tegak: tampilan ini bentuknya memanjang ke samping
+           (1024x516), jadi kalau dipaksa muat di layar tegak semuanya jadi
+           mungil. Lebih jujur meminta layar diputar. */
+        #rotate-hint {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5vw;
+            padding: 8vw;
+            text-align: center;
+            background: #14100e;
+            color: #f3e7cf;
+            font-family: 'Press Start 2P', monospace;
+        }
+        #rotate-hint .rh-ikon {
+            width: 22vw;
+            max-width: 130px;
+            animation: rhPutar 2.4s ease-in-out infinite;
+        }
+        #rotate-hint p { margin: 0; font-size: 3.4vw; line-height: 2; }
+        #rotate-hint small { font-size: 2.6vw; color: #cbbfa6; line-height: 1.9; }
+        #rotate-hint .rh-lanjut {
+            margin-top: 2vw;
+            padding: 0.8em 1.2em;
+            font-family: inherit;
+            font-size: 2.6vw;
+            color: #ffdca8;
+            background: #5d3a2a;
+            border: 2px solid #c69a63;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+        }
+        @keyframes rhPutar {
+            0%, 45%   { transform: rotate(0deg); }
+            70%, 100% { transform: rotate(90deg); }
+        }
+        /* layar pendek -- biasanya HP yang dimiringkan. Lebarnya bisa lebih
+           dari 768 px jadi tidak kena blok di atas, tapi tetap sempit. */
+        @media (max-height: 520px) {
+            #music-bar {
+                left: 4px;
+                right: auto;
+                transform: none;
+                top: 4px;
+                gap: 8px;
+                padding: 4px 8px;
+            }
+            .mus-btn { height: 20px; }
+            #btn-play { height: 28px; }
+            #mus-title { max-width: 26vw; font-size: 0.38rem; }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            body:not(.abaikan-putar) #rotate-hint { display: flex; }
+        }
+    </style>
+    </style>
 
 
             <!-- KONTROL VOLUME -->
@@ -1529,7 +1698,7 @@
                     </div>
 
                     <div id="au-profile" class="au-screen hidden">
-                        <div id="au-stage"></div>
+                        <div id="au-stage"><div id="au-track"></div></div>
                         <div class="au-footer">
                             <div class="au-switch" id="au-switch" role="button" tabindex="0">&lt;&lt; GANTI KARAKTER</div>
                             <div class="au-pager">
@@ -1614,7 +1783,15 @@
             const btnRomanceGallery = document.getElementById('btn-romance-gallery');
             const btnPhotoboothGallery = document.getElementById('btn-photobooth-gallery');
 
-            const bgmAudio = document.getElementById('bgm-audio');
+            // daftar lagu; berkasnya ada di folder musik/
+            const playlist = [
+                { berkas: 'musik/bgm-rosewater.mp3',                                                              judul: 'Rosewater' },
+                { berkas: 'musik/Nom - Beneath the Rain.mp3',                                                     judul: 'Beneath the Rain' },
+                { berkas: 'musik/Call of Silence - Clear Sky Remix (loop instrumental) (intro - outro) - Tiktok Sound.mp3', judul: 'Call of Silence' }
+            ];
+            let trekIndex = 0;
+            const bgmAudio = new Audio(encodeURI(playlist[0].berkas));
+            bgmAudio.preload = 'auto';
             const btnMute = document.getElementById('btn-mute');
 
 
@@ -1819,47 +1996,59 @@
 
             const auSelect = document.getElementById('au-select');
             const auProfile = document.getElementById('au-profile');
-            const auStage = document.getElementById('au-stage');
+            const auTrack = document.getElementById('au-track');
             const auNums = Array.from(document.querySelectorAll('.au-num'));
             const auPrev = document.getElementById('au-prev');
             const auNext = document.getElementById('au-next');
             let auChar = null;      // 'men' | 'women'
             let auPage = 1;         // 1..4
 
-            function auRender() {
-                if (!auChar) return;
-                const d = AU_DATA[auChar];
+            // isi satu halaman
+            function auHalaman(d, hal) {
                 const judul = 'PERSONAL PROFILE: ' + d.nama;
-
-                if (auPage === 1) {
-                    auStage.innerHTML =
-                        '<div class="au-panel">' +
-                            '<h3 class="au-title">' + judul + '</h3>' +
-                            '<div class="au-pbox">' +
-                                '<img class="au-portrait" src="' + d.portrait + '" alt="">' +
-                            '</div>' +
-                            '<div class="au-rows">' +
-                                d.profil.map(r =>
-                                    '<div><span class="au-chip">' + r[0] + '</span>' +
-                                    '<p class="au-val">' + r[1] + '</p></div>').join('') +
-                            '</div>' +
-                        '</div>';
-                } else {
-                    const pasangan = d.halaman[auPage - 2];
-                    auStage.innerHTML =
-                        '<div class="au-panel au-two">' +
-                            '<h3 class="au-title">' + judul + '</h3>' +
-                            '<div class="au-slots">' +
-                                pasangan.map((s, i) => {
-                                    const n = i + 1;
-                                    return '<span class="au-chip au-c' + n + '">' + s[0] + '</span>' +
-                                           '<div class="au-slot-box au-b' + n + '"><img src="' + AU + s[1] + '.png" alt="' + s[2] + '"></div>' +
-                                           '<p class="au-val au-v' + n + '" style="left:' + (n === 1 ? '29.47' : '71.74') + '%">' + s[2] + '</p>';
-                                }).join('') +
-                            '</div>' +
-                        '</div>';
+                if (hal === 1) {
+                    return '<div class="au-panel">' +
+                               '<h3 class="au-title">' + judul + '</h3>' +
+                               '<div class="au-pbox">' +
+                                   '<img class="au-portrait" src="' + d.portrait + '" alt="">' +
+                               '</div>' +
+                               '<div class="au-rows">' +
+                                   d.profil.map(r =>
+                                       '<div><span class="au-chip">' + r[0] + '</span>' +
+                                       '<p class="au-val">' + r[1] + '</p></div>').join('') +
+                               '</div>' +
+                           '</div>';
                 }
+                const pasangan = d.halaman[hal - 2];
+                return '<div class="au-panel au-two">' +
+                           '<h3 class="au-title">' + judul + '</h3>' +
+                           '<div class="au-slots">' +
+                               pasangan.map((s, i) => {
+                                   const n = i + 1;
+                                   return '<span class="au-chip au-c' + n + '">' + s[0] + '</span>' +
+                                          '<div class="au-slot-box au-b' + n + '"><img src="' + AU + s[1] + '.png" alt="' + s[2] + '"></div>' +
+                                          '<p class="au-val au-v' + n + '" style="left:' + (n === 1 ? '29.47' : '71.74') + '%">' + s[2] + '</p>';
+                               }).join('') +
+                           '</div>' +
+                       '</div>';
+            }
 
+            // keempat halaman dipasang sekaligus di lintasan, lalu digeser
+            function auBangun() {
+                const d = AU_DATA[auChar];
+                let html = '';
+                for (let h = 1; h <= 4; h++) html += '<div class="au-slide">' + auHalaman(d, h) + '</div>';
+                auTrack.innerHTML = html;
+            }
+
+            function auGeser(hal, halus) {
+                auPage = Math.min(4, Math.max(1, hal));
+                if (halus === false) auTrack.style.transition = 'none';
+                auTrack.style.transform = 'translateX(-' + (auPage - 1) * 25 + '%)';
+                if (halus === false) {
+                    void auTrack.offsetWidth;       // paksa hitung ulang sebelum transisi dipasang lagi
+                    auTrack.style.transition = '';
+                }
                 auNums.forEach(n => n.classList.toggle('active', +n.dataset.page === auPage));
                 auPrev.classList.toggle('off', auPage === 1);
                 auNext.classList.toggle('off', auPage === 4);
@@ -1867,17 +2056,17 @@
 
             function auShowChar(karakter) {
                 auChar = karakter;
-                auPage = 1;
                 auSelect.classList.add('hidden');
                 auProfile.classList.remove('hidden');
-                auRender();
+                auBangun();
+                auGeser(1, false);
             }
 
             document.querySelectorAll('.au-choice').forEach(c =>
                 c.addEventListener('click', () => auShowChar(c.dataset.char)));
-            auNums.forEach(n => n.addEventListener('click', () => { auPage = +n.dataset.page; auRender(); }));
-            auPrev.addEventListener('click', () => { if (auPage > 1) { auPage--; auRender(); } });
-            auNext.addEventListener('click', () => { if (auPage < 4) { auPage++; auRender(); } });
+            auNums.forEach(n => n.addEventListener('click', () => auGeser(+n.dataset.page)));
+            auPrev.addEventListener('click', () => auGeser(auPage - 1));
+            auNext.addEventListener('click', () => auGeser(auPage + 1));
             document.getElementById('au-switch').addEventListener('click', () => {
                 auProfile.classList.add('hidden');
                 auSelect.classList.remove('hidden');
@@ -1941,6 +2130,8 @@
                 const pct = Math.round(volume * 100);
                 if (volLabel) volLabel.textContent = pct + '%';
                 btnMute.style.opacity = (bgmAudio.paused || volume === 0) ? '0.45' : '1';
+                const bp = document.getElementById('btn-play');
+                if (bp) bp.classList.toggle('jeda', bgmAudio.paused);
                 console.log('[BGM] volume ' + String(pct).padStart(3) + '%  ' +
                             '\u2588'.repeat(steps) + '\u2591'.repeat(10 - steps));
             }
@@ -1958,7 +2149,49 @@
                 bgmAudio.play().catch(err => console.log('[BGM] autoplay ditolak browser:', err));
             }
 
+            // ajakan memutar layar boleh diabaikan
+            const rhLanjut = document.querySelector('#rotate-hint .rh-lanjut');
+            if (rhLanjut) rhLanjut.addEventListener('click', () => document.body.classList.add('abaikan-putar'));
+
+            // ---- kendali daftar lagu ----
+            const btnPlay = document.getElementById('btn-play');
+            const musTitle = document.getElementById('mus-title');
+
+            function renderMusik() {
+                musTitle.textContent = playlist[trekIndex].judul;
+                btnPlay.classList.toggle('jeda', bgmAudio.paused);
+                btnPlay.title = (bgmAudio.paused ? 'Putar' : 'Jeda') + ' \u2014 ' + playlist[trekIndex].judul;
+                btnMute.style.opacity = (bgmAudio.paused || volume === 0) ? '0.45' : '1';
+            }
+
+            function putarTrek(i) {
+                trekIndex = (i + playlist.length) % playlist.length;
+                bgmAudio.src = encodeURI(playlist[trekIndex].berkas);
+                bgmAudio.volume = volume;
+                musicStarted = true;
+                bgmAudio.play().catch(err => console.log('[BGM] gagal memutar:', err));
+                renderMusik();
+            }
+
+            // lagu habis -> geser indeks ke lagu berikutnya, memutar terus
+            bgmAudio.addEventListener('ended', () => putarTrek(trekIndex + 1));
+            ['play', 'pause'].forEach(ev => bgmAudio.addEventListener(ev, renderMusik));
+
+            btnPlay.addEventListener('click', () => {
+                if (bgmAudio.paused) {
+                    musicStarted = true;
+                    bgmAudio.volume = volume;
+                    bgmAudio.play().catch(err => console.log('[BGM] gagal memutar:', err));
+                } else {
+                    bgmAudio.pause();
+                }
+                renderMusik();
+            });
+            document.getElementById('btn-track-prev').addEventListener('click', () => putarTrek(trekIndex - 1));
+            document.getElementById('btn-track-next').addEventListener('click', () => putarTrek(trekIndex + 1));
+
             renderVolume();
+            renderMusik();
 
             document.getElementById('btn-vol-down').addEventListener('click', () => changeVolume(-VOL_STEP));
             document.getElementById('btn-vol-up').addEventListener('click', () => changeVolume(VOL_STEP));
@@ -1978,8 +2211,24 @@
             });
         });
     </script>
-    <!-- AUDIO BACKGROUND -->
-    <audio id="bgm-audio" src="musik/bgm-rosewater.mp3" loop></audio>
+    <!-- AJAKAN MEMUTAR LAYAR (hanya muncul di HP posisi tegak) -->
+    <div id="rotate-hint">
+        <img class="rh-ikon" src="gambarpixel/anim/ico_about_hi.png" alt="">
+        <p>PUTAR LAYARMU</p>
+        <small>Land of Sorrow dibuat melebar ke samping.<br>Miringkan HP-mu supaya muat.</small>
+        <button class="rh-lanjut" type="button">LANJUT SAJA</button>
+    </div>
+
+    <!-- PEMUTAR MUSIK (tetap terlihat walau halaman digulir) -->
+    <div id="music-bar">
+        <img class="mus-btn" id="btn-track-prev" src="gambarpixel/anim/btn_prev.png"
+             alt="Lagu sebelumnya" title="Lagu sebelumnya">
+        <img class="mus-btn" id="btn-play" src="gambarpixel/anim/btn_play.png"
+             alt="Putar / jeda" title="Putar / jeda">
+        <img class="mus-btn" id="btn-track-next" src="gambarpixel/anim/btn_next.png"
+             alt="Lagu berikutnya" title="Lagu berikutnya">
+        <span id="mus-title"></span>
+    </div>
 </body>
 </html>
 
