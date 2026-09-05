@@ -413,7 +413,6 @@
         /* ====== ANIMASI LAYAR JUDUL ====== */
         #ttl-adventure, #ttl-press {
             pointer-events: none;
-            will-change: transform;
         }
         #ttl-adventure {
             animation: ttlBob 1.6s step-end infinite;
@@ -454,7 +453,6 @@
             z-index: 2;
             pointer-events: none;
             transform-origin: 50% 100%;
-            will-change: transform;
             animation: breathe 3.6s ease-in-out infinite;
         }
         #guard-right {
@@ -795,29 +793,10 @@
             0%, 100% { transform: translateY(0); }
             50%      { transform: translateY(-2%); }
         }
-        /* bayangan/jejak kecepatan di belakang kuda (kuda menghadap kiri) */
-        .ld-horse::before,
-        .ld-horse::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            background-image: url('gambarpixel/anim/gallop_sheet.png');
-            background-size: 200% 100%;
-            background-repeat: no-repeat;
-            animation: ldGallop 0.45s steps(2) infinite;
-        }
-        .ld-horse::before {
-            transform: translateX(7%);
-            opacity: 0.24;
-            filter: brightness(1.5) saturate(0.35);
-            animation-delay: -0.225s;   /* setengah siklus -> menampilkan frame lawannya */
-        }
-        .ld-horse::after {
-            transform: translateX(14%);
-            opacity: 0.14;
-            filter: brightness(1.8) saturate(0.15);
-        }
+        /* Dulu di sini ada dua salinan kuda tembus pandang sebagai jejak
+           kecepatan. Setelah gambarnya tajam, salinan itu terbaca sebagai
+           kuda hantu, bukan gerakan -- jadi dihapus. Kesan lari sudah
+           dibawa oleh garis kecepatan dan langit yang bergulir. */
 
         /* teks + titik berjalan */
         .ld-text {
@@ -911,13 +890,39 @@
         }
 
 
-        /* napas pasangan di layar judul: hanya diregangkan dari titik tumpu
-           di kaki, jadi kaki tetap menempel di lantai. Tarikan napas sedikit
-           lebih cepat daripada hembusannya supaya terasa seperti orang. */
+        /* Napas pasangan di layar judul.
+           Lapisan ini memakai BERKAS LATAR YANG SAMA, bukan potongan
+           tersendiri: gambarnya diskalakan persis seukuran panggung
+           (100/0,25586 = 390,84% dan 100/0,47868 = 208,91%) lalu digeser
+           supaya yang tampak hanya bagian pasangan. Dengan begitu Chrome
+           memakai hasil rasterisasi yang sama dengan latar, jadi
+           ketajamannya identik -- kalau memakai berkas sendiri, lapisannya
+           terlihat lebih lembut daripada sekelilingnya.
+           Tepi atas dan samping dilembutkan mask supaya sambungan dengan
+           latar tetap tak terlihat saat lapisan diregangkan; bagian bawah
+           dibiarkan utuh karena titik tumpu skala ada di sana. */
         #ttl-couple {
+            position: absolute;
+            left: 37.891%;
+            top: 46.512%;
+            width: 25.586%;
+            height: 47.868%;
+            z-index: 2;
+            pointer-events: none;
+            background-image: url('gambarpixel/anim/title_bg_hi.jpg');
+            background-size: 390.838% 208.908%;
+            background-position: 50.919% 89.220%;
+            background-repeat: no-repeat;
+            -webkit-mask-image:
+                linear-gradient(180deg, transparent 0, #000 11.34%),
+                linear-gradient(90deg, transparent 0, #000 3.82%, #000 96.18%, transparent 100%);
+            -webkit-mask-composite: source-in;
+            mask-image:
+                linear-gradient(180deg, transparent 0, #000 11.34%),
+                linear-gradient(90deg, transparent 0, #000 3.82%, #000 96.18%, transparent 100%);
+            mask-composite: intersect;
             transform-origin: 50% 100%;
             animation: coupleBreath 4.4s ease-in-out infinite;
-            will-change: transform;
         }
         @keyframes coupleBreath {
             0%   { transform: scaleY(1); }
@@ -1289,9 +1294,8 @@
             <img id="ttl-adventure" src="gambarpixel/anim/title_hi.png" alt="Our Adventure"
                  style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
 
-            <!-- pasangan dipotong dari latar supaya bisa bernapas -->
-            <img id="ttl-couple" src="gambarpixel/anim/couple_hi.png" alt=""
-                 style="position: absolute; left: 37.891%; top: 46.512%; width: 25.586%; height: 47.868%; z-index: 2; pointer-events: none;">
+            <!-- pasangan: potongan latar yang sama, dipisah supaya bisa bernapas -->
+            <div id="ttl-couple"></div>
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
             <div class="petal-layer petal-far" style="z-index: 3;"><i></i></div>
