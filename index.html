@@ -929,8 +929,15 @@
         }
         #au-profile {
             justify-content: flex-start;
-            padding: 3.5% 0 2.5%;
-            gap: 1.8%;
+            padding: 2.4% 0 2.4%;
+            gap: 1.6%;
+        }
+        .au-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4%;
+            width: 100%;
         }
         #au-stage {
             flex: 1 1 auto;
@@ -981,67 +988,59 @@
             position: relative;
             height: 100%;
             width: auto;
-            max-width: 84%;
-            aspect-ratio: 279 / 234;
-            background: url('gambarpixel/anim/au/panel_profile.png') 0 0 / 100% 100% no-repeat;
-            display: flex;
-            flex-direction: column;
+            max-width: 88%;
+            aspect-ratio: 207 / 155;
+            background: url('gambarpixel/anim/au/panel_frame_hi.png') 0 0 / 100% 100% no-repeat;
         }
         .au-panel.au-two {
-            aspect-ratio: 207 / 155;
-            background-image: url('gambarpixel/anim/au/frame_two_slots.png');
+            background-image: url('gambarpixel/anim/au/frame_two_slots_hi.png');
         }
         .au-title {
             position: absolute;
-            top: 2.4%;
-            left: 0;
-            width: 100%;
+            left: 5%;
+            top: 1.9%;
+            width: 90%;
+            height: 12.3%;
             margin: 0;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(0.42rem, 0.92vw, 0.8rem);
+            font-size: clamp(0.4rem, 0.88vw, 0.78rem);
             color: #e8a86a;
             text-shadow: 2px 2px 0 #2b1a12;
             letter-spacing: 0.04em;
         }
-        .au-two .au-title { top: 3.5%; }
-        /* bagian dalam panel halaman 1 tembus pandang -> beri alas gelap */
-        .au-fill {
-            position: absolute;
-            left: 13.2%;
-            top: 22%;
-            width: 83.6%;
-            height: 72%;
-            background: rgba(30, 41, 29, 0.93);
-        }
 
-        /* halaman 1: potret + baris data */
-        .au-body1 {
+        /* halaman 1: potret dibingkai + baris data */
+        .au-pbox {
             position: absolute;
-            left: 8%;
-            top: 21.5%;
-            width: 84%;
-            height: 73%;
-            display: flex;
-            gap: 3.5%;
-            align-items: flex-start;
+            left: 6.6%;
+            top: 32%;
+            width: 33%;
+            height: 42.3%;
+            background: url('gambarpixel/anim/au/slot_frame_hi.png') 0 0 / 100% 100% no-repeat;
         }
         .au-portrait {
-            flex: 0 0 27%;
-            width: 27%;
-            height: auto;
-            border: 3px solid #b39b74;
-            background: #241d24;
-            box-shadow: 0 0 0 2px #2b211a, 3px 3px 0 rgba(0, 0, 0, 0.45);
+            position: absolute;
+            left: 16%;
+            top: 16.7%;
+            width: 68%;
+            height: 70.8%;
+            object-fit: contain;
+            object-position: center bottom;
         }
         .au-rows {
-            flex: 1;
-            min-width: 0;
+            position: absolute;
+            left: 43%;
+            top: 19.5%;
+            width: 52%;
+            height: 73%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 100%;
         }
+        .au-rows > div { display: flex; flex-direction: column; align-items: flex-start; }
         .au-chip {
             display: inline-block;
             padding: 0.32em 0.6em;
@@ -1076,7 +1075,7 @@
             white-space: nowrap;
         }
         .au-slots .au-chip { top: 27.5%; }
-        .au-slots .au-val  { top: 78.5%; margin: 0; }
+        .au-slots .au-val  { top: 81.5%; margin: 0; }
         .au-c1 { left: 29.47%; }
         .au-c2 { left: 71.74%; }
         .au-slot-box {
@@ -1100,6 +1099,9 @@
             transition: transform 0.15s ease;
         }
         .au-slot-box:hover img { transform: scale(1.08) translateY(-3px); }
+        /* ikon sumbernya jauh lebih besar dari ukuran tampil; diperkecil dengan
+           penyaringan halus supaya tidak pecah bergerigi */
+        .au-slot-box img { image-rendering: auto; }
 
         /* ---- navigasi halaman ---- */
         .au-pager {
@@ -1122,15 +1124,26 @@
         }
         .au-pg.off { opacity: 0.35; cursor: default; pointer-events: none; }
         .au-switch {
-            margin-top: 0.6%;
+            padding: 0.7em 1.1em;
+            background: #5d3a2a;
+            border: 2px solid #c69a63;
+            box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
             font-family: 'Press Start 2P', monospace;
             font-size: clamp(0.32rem, 0.62vw, 0.55rem);
-            color: #cbbfa6;
-            text-shadow: 2px 2px 0 #241a14;
+            color: #ffdca8;
+            text-shadow: 1px 1px 0 #2b1a12;
             cursor: pointer;
+            user-select: none;
             letter-spacing: 0.05em;
+            transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.1s ease;
         }
-        .au-switch:hover { color: #ffd28a; }
+        .au-switch:hover {
+            background: #7a4a38;
+            border-color: #ffd28a;
+            color: #fff3d6;
+            transform: translateY(-2px);
+        }
+        .au-switch:active { transform: translateY(1px); }
 
         /* label menu About Us di sidebar (yang lain sudah tergambar di mockup) */
         .nav-label {
@@ -1484,15 +1497,17 @@
 
                     <div id="au-profile" class="au-screen hidden">
                         <div id="au-stage"></div>
-                        <div class="au-pager">
-                            <img class="au-pg" id="au-prev" src="gambarpixel/anim/au/pg_prev.png" alt="Sebelumnya">
-                            <img class="au-pg au-num" data-page="1" src="gambarpixel/anim/au/pg_1.png" alt="1">
-                            <img class="au-pg au-num" data-page="2" src="gambarpixel/anim/au/pg_2.png" alt="2">
-                            <img class="au-pg au-num" data-page="3" src="gambarpixel/anim/au/pg_3.png" alt="3">
-                            <img class="au-pg au-num" data-page="4" src="gambarpixel/anim/au/pg_4.png" alt="4">
-                            <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next.png" alt="Berikutnya">
+                        <div class="au-footer">
+                            <div class="au-switch" id="au-switch" role="button" tabindex="0">&lt;&lt; GANTI KARAKTER</div>
+                            <div class="au-pager">
+                                <img class="au-pg" id="au-prev" src="gambarpixel/anim/au/pg_prev.png" alt="Sebelumnya">
+                                <img class="au-pg au-num" data-page="1" src="gambarpixel/anim/au/pg_1.png" alt="1">
+                                <img class="au-pg au-num" data-page="2" src="gambarpixel/anim/au/pg_2.png" alt="2">
+                                <img class="au-pg au-num" data-page="3" src="gambarpixel/anim/au/pg_3.png" alt="3">
+                                <img class="au-pg au-num" data-page="4" src="gambarpixel/anim/au/pg_4.png" alt="4">
+                                <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next.png" alt="Berikutnya">
+                            </div>
                         </div>
-                        <div class="au-switch" id="au-switch">&gt; GANTI KARAKTER &lt;</div>
                     </div>
                 </div>
 
@@ -1780,15 +1795,14 @@
                 if (auPage === 1) {
                     auStage.innerHTML =
                         '<div class="au-panel">' +
-                            '<div class="au-fill"></div>' +
                             '<h3 class="au-title">' + judul + '</h3>' +
-                            '<div class="au-body1">' +
+                            '<div class="au-pbox">' +
                                 '<img class="au-portrait" src="' + d.portrait + '" alt="">' +
-                                '<div class="au-rows">' +
-                                    d.profil.map(r =>
-                                        '<div><span class="au-chip">' + r[0] + '</span>' +
-                                        '<p class="au-val">' + r[1] + '</p></div>').join('') +
-                                '</div>' +
+                            '</div>' +
+                            '<div class="au-rows">' +
+                                d.profil.map(r =>
+                                    '<div><span class="au-chip">' + r[0] + '</span>' +
+                                    '<p class="au-val">' + r[1] + '</p></div>').join('') +
                             '</div>' +
                         '</div>';
                 } else {
