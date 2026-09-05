@@ -903,23 +903,30 @@
            dibiarkan utuh karena titik tumpu skala ada di sana. */
         #ttl-couple {
             position: absolute;
-            left: 37.891%;
-            top: 46.512%;
-            width: 25.586%;
-            height: 47.868%;
+            /* Kotak sengaja dilebihkan: bidang landai mask harus jatuh di
+               latar kosong, bukan di badan pasangan. Kalau tepi lengan atau
+               mahkota kena bidang landai, lapisannya jadi agak tembus di
+               situ dan salinan yang tergambar di latar ikut kelihatan --
+               itu yang terbaca sebagai garis ganda.
+               Ksatria mulai di x 397, gaun berakhir di x 633, ubun-ubun di
+               y 270, kaki di y 473 (koordinat gambar 1024x516). */
+            left: 36.328%;    /* x 372 */
+            top: 44.961%;     /* y 232 */
+            width: 27.539%;   /* 282 px */
+            height: 49.419%;  /* 255 px */
             z-index: 2;
             pointer-events: none;
             background-image: url('gambarpixel/anim/title_bg_hi.jpg');
-            background-size: 390.838% 208.908%;
-            background-position: 50.919% 89.220%;
+            background-size: 363.120% 202.351%;
+            background-position: 50.134% 88.889%;
             background-repeat: no-repeat;
             -webkit-mask-image:
-                linear-gradient(180deg, transparent 0, #000 11.34%),
-                linear-gradient(90deg, transparent 0, #000 3.82%, #000 96.18%, transparent 100%);
+                linear-gradient(180deg, transparent 0, #000 10.98%),
+                linear-gradient(90deg, transparent 0, #000 3.55%, #000 96.45%, transparent 100%);
             -webkit-mask-composite: source-in;
             mask-image:
-                linear-gradient(180deg, transparent 0, #000 11.34%),
-                linear-gradient(90deg, transparent 0, #000 3.82%, #000 96.18%, transparent 100%);
+                linear-gradient(180deg, transparent 0, #000 10.98%),
+                linear-gradient(90deg, transparent 0, #000 3.55%, #000 96.45%, transparent 100%);
             mask-composite: intersect;
             transform-origin: 50% 100%;
             animation: coupleBreath 4.4s ease-in-out infinite;
