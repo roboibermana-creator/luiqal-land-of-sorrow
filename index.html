@@ -977,38 +977,76 @@
             50%      { transform: translateY(-14%) scale(1.06); }
         }
 
-        /* Burung terbang: lembar 6 frame.
-           Jalurnya di langit (sekitar 30% tinggi panggung) -- di bawah tulisan
-           PRESS START dan jauh di atas pasangan maupun kucing, jadi tidak ada
-           yang bertabrakan. */
+        /* BURUNG BERTENGGER DI POHON KIRI
+           Dua kotak berukuran sama ditumpuk: #ttl-perch (dahan, statis) dan
+           #ttl-bird (burung). Semua lembar burung memakai sel yang sama dan
+           disejajarkan terhadap dahan, jadi hinggap/lepas landas tidak
+           meloncat, dan dahannya tetap di pohon saat burung pergi.
+           Frame digerakkan JS (urutannya bercabang); jalur terbang memakai
+           transform CSS. */
+        #ttl-perch,
         #ttl-bird {
             position: absolute;
-            left: 0;
-            top: 29%;
-            width: 3.1%;
-            aspect-ratio: 320 / 329;
+            left: 12.4%;
+            top: 30.2%;
+            width: 8.2%;
+            aspect-ratio: 636 / 633;
             z-index: 4;
-            background: url('gambarpixel/anim/bird_fly.png') 0 0 / 600% 100% no-repeat;
-            animation: birdFlap 0.5s steps(6) infinite,
-                       birdCross 15s linear infinite;
         }
-        #ttl-bird::after {
-            content: '';
+        #ttl-perch {
+            background: url('gambarpixel/anim/bird_perch.png') 0 0 / 100% 100% no-repeat;
+            z-index: 3;
+        }
+        #ttl-bird {
+            background-image: url('gambarpixel/anim/bird_idle.png');
+            background-size: 200% 100%;
+            background-repeat: no-repeat;
+            transform-origin: 50% 71.41%;     /* garis hinggap */
+        }
+        /* hanya saat diam burung bisa disapa */
+        #ttl-bird.diam { pointer-events: auto; cursor: var(--kursor), pointer; }
+        #ttl-bird.bersiap { background-image: url('gambarpixel/anim/bird_preflight.png'); background-size: 300% 100%; }
+        #ttl-bird.terbang { background-image: url('gambarpixel/anim/bird_fly.png');       background-size: 600% 100%;
+                            animation: birdAway 2.4s ease-in forwards; }
+        #ttl-bird.pulang  { background-image: url('gambarpixel/anim/bird_return.png');    background-size: 400% 100%;
+                            animation: birdBack 2.2s ease-out forwards; }
+        #ttl-bird.pergi   { visibility: hidden; }
+        /* pergi: melaju ke kanan di bawah tulisan, lalu naik keluar di sudut kanan atas
+           (tulisan judul & PRESS START ada di x 31-69%, y 7-24% -- jalur ini
+           tetap di bawahnya sampai lewat, baru menanjak) */
+        @keyframes birdAway {
+            0%   { transform: translate(0, 0) scale(1); }
+            55%  { transform: translate(720%, -6%) scale(0.92); }
+            100% { transform: translate(1150%, -420%) scale(0.7); }
+        }
+        /* pulang: masuk dari tepi kiri, meluncur turun ke dahan */
+        @keyframes birdBack {
+            0%   { transform: translate(-260%, -230%) scale(0.85); }
+            70%  { transform: translate(-40%, -60%) scale(1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* gelembung "Cip cip~" -- pola yang sama dengan gelembung kucing */
+        .bird-bubble {
             position: absolute;
-            inset: 0;
-            animation: birdBob 3.2s ease-in-out infinite;
+            left: 58%;
+            bottom: 88%;
+            width: 150%;
+            aspect-ratio: 1026 / 460;
+            background: url('gambarpixel/anim/emote_burung.png') 0 0 / 100% 100% no-repeat;
+            transform: translateX(-49.95%);
+            transform-origin: 49.95% 100%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
         }
-        @keyframes birdFlap {
-            from { background-position-x: 0%; }
-            to   { background-position-x: 120%; }   /* 6 langkah -> 0,20,...,100% */
-        }
-        @keyframes birdCross {
-            from { transform: translate(-200%, 0); }
-            to   { transform: translate(3400%, -60%); }
-        }
-        @keyframes birdBob {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(18%); }
+        .bird-bubble.tampil { animation: birdBubblePop 1.9s ease-out forwards; }
+        @keyframes birdBubblePop {
+            0%   { opacity: 0; transform: translateX(-49.95%) translateY(18%) scale(0.55); }
+            14%  { opacity: 1; transform: translateX(-49.95%) translateY(-5%) scale(1.07); }
+            24%  { opacity: 1; transform: translateX(-49.95%) translateY(0)   scale(1); }
+            76%  { opacity: 1; transform: translateX(-49.95%) translateY(0)   scale(1); }
+            100% { opacity: 0; transform: translateX(-49.95%) translateY(-8%) scale(0.96); }
         }
 
         /* KUCING - dua lembar terpisah
@@ -1674,7 +1712,9 @@
                 </div>
                 <div id="ttl-heart"><i></i></div>
                 <div id="ttl-cat" title="Elus kucingnya"><i class="cat-bubble"></i></div>
-                <div id="ttl-bird"></div>
+                <!-- burung bertengger: dahan statis di bawah, burung di atasnya (kotak sama) -->
+                <div id="ttl-perch"></div>
+                <div id="ttl-bird" title="Sapa burungnya"><i class="bird-bubble"></i></div>
             </div>
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
@@ -2441,6 +2481,81 @@
                     bubble.classList.add('tampil');
                 });
                 bubble.addEventListener('animationend', () => bubble.classList.remove('tampil'));
+            }
+
+            // ---- BURUNG BERTENGGER: diam -> (klik) bersiap -> terbang -> pergi -> pulang -> diam ----
+            const ttlBird = document.getElementById('ttl-bird');
+            if (ttlBird) {
+                const birdBubble = ttlBird.querySelector('.bird-bubble');
+                const BIRD = {                       // frame per lembar & jeda antar frame
+                    diam:    { n: 2, ms: 480 },
+                    bersiap: { n: 3, ms: 170 },
+                    terbang: { n: 6, ms: 80  },
+                    pulang:  { n: 4, ms: 150 },
+                };
+                const KELAS = ['diam', 'bersiap', 'terbang', 'pergi', 'pulang'];
+                let birdState = 'diam', birdIdx = 0, birdTimer = null;
+
+                function birdGambar(n) {
+                    ttlBird.style.backgroundPositionX = (birdIdx * 100 / (n - 1)) + '%';
+                }
+                function birdSet(state) {
+                    clearTimeout(birdTimer);
+                    birdState = state; birdIdx = 0;
+                    KELAS.forEach(k => ttlBird.classList.toggle(k, k === state));
+                    if (state !== 'pergi') birdGambar(BIRD[state].n);
+                }
+                // satu pengatur waktu untuk semua keadaan; tiap keadaan tahu
+                // sendiri harus berputar atau berhenti di frame terakhir
+                function birdDetak() {
+                    const s = birdState;
+                    if (s === 'pergi') return;
+                    const { n, ms } = BIRD[s];
+                    if (s === 'diam' || s === 'terbang') {
+                        birdIdx = (birdIdx + 1) % n;            // berputar
+                    } else if (s === 'pulang') {
+                        // dua frame pertama = mengepak masuk (berputar), dua frame
+                        // terakhir = hinggap (diputar saat sampai, lihat animationend)
+                        birdIdx = birdIdx < 2 ? 1 - birdIdx : Math.min(birdIdx + 1, n - 1);
+                    } else if (s === 'bersiap') {
+                        if (birdIdx >= n - 1) { birdSet('terbang'); return birdJadwal(); }
+                        birdIdx++;
+                    }
+                    birdGambar(n);
+                    birdJadwal();
+                }
+                function birdJadwal() {
+                    clearTimeout(birdTimer);
+                    if (birdState !== 'pergi') birdTimer = setTimeout(birdDetak, BIRD[birdState].ms);
+                }
+
+                ttlBird.addEventListener('animationend', e => {
+                    if (e.animationName === 'birdAway') {
+                        // sudah di luar layar: sembunyi sebentar, lalu pulang dari kiri
+                        birdSet('pergi');
+                        birdTimer = setTimeout(() => { birdSet('pulang'); birdJadwal(); }, 2500);
+                    } else if (e.animationName === 'birdBack') {
+                        // sampai di dahan: mainkan dua frame hinggap, lalu kembali diam
+                        clearTimeout(birdTimer);
+                        birdIdx = 2; birdGambar(BIRD.pulang.n);
+                        birdTimer = setTimeout(() => {
+                            birdIdx = 3; birdGambar(BIRD.pulang.n);
+                            birdTimer = setTimeout(() => { birdSet('diam'); birdJadwal(); }, 180);
+                        }, 180);
+                    }
+                });
+
+                // klik hanya berlaku saat diam -- selama urutan berjalan diabaikan
+                ttlBird.addEventListener('click', () => {
+                    if (birdState !== 'diam') return;
+                    birdBubble.classList.remove('tampil');
+                    void birdBubble.offsetWidth;
+                    birdBubble.classList.add('tampil');
+                    birdSet('bersiap'); birdJadwal();
+                });
+                birdBubble.addEventListener('animationend', () => birdBubble.classList.remove('tampil'));
+
+                birdSet('diam'); birdJadwal();
             }
 
             // ajakan memutar layar boleh diabaikan
