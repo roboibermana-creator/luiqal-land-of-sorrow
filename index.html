@@ -24,11 +24,14 @@
             display: none !important;
         }
 
-        /* kursor pedang untuk seluruh halaman */
-        html, body { cursor: url('gambarpixel/anim/cursor_sword.png') 3 3, auto; }
-        .nav-btn, .au-pg, .au-choice, .au-switch, .vol-btn, .mus-btn,
-        #btn-start, #btn-mute, .slot-photo, .photobooth-img, .rh-lanjut,
-        button, a { cursor: url('gambarpixel/anim/cursor_sword.png') 3 3, pointer; }
+        /* KURSOR PEDANG DI SELURUH HALAMAN
+           Alamat gambarnya disimpan sekali di variabel supaya setiap tempat
+           yang menyetel cursor memakai gambar yang sama. Aturan bintang
+           membuat elemen yang tidak punya aturan sendiri -- termasuk kolom
+           isian yang bawaannya kursor teks -- ikut mewarisi. */
+        :root { --kursor: url('gambarpixel/anim/cursor_sword.png') 3 3; }
+        html, body { cursor: var(--kursor), auto; }
+        *, *::before, *::after { cursor: inherit; }
 
         /* KETAJAMAN GAMBAR
            .stage paling lebar 1400 px sedangkan mockup aslinya 1024 px, jadi
@@ -73,7 +76,7 @@
             border: 4px solid #3d2626;
             color: #3d2626;
             padding: 12px 20px;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             box-shadow:
                 inset 4px 4px 0px rgba(255,255,255,0.5),
                 inset -4px -4px 0px rgba(0,0,0,0.2),
@@ -144,7 +147,7 @@
 
         .blink {
             animation: blinker 1.2s linear infinite;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             font-size: 1.5rem;
             color: #fff;
             text-shadow: 3px 3px 0 #3d2626;
@@ -223,7 +226,7 @@
             line-height: 1.5;
         }
         .sidebar-item.clickable {
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: transform 0.1s;
         }
         .sidebar-item.clickable:hover {
@@ -242,7 +245,7 @@
         .submenu-item {
             font-size: 0.75rem;
             color: #a45050;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             text-align: left;
             display: flex;
             align-items: center;
@@ -394,7 +397,7 @@
             justify-content: center;
             align-items: center;
             font-size: 3rem;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: transform 0.1s;
         }
         .gallery-item:hover {
@@ -475,7 +478,7 @@
         /* tombol menu tak terlihat di atas sidebar yang tergambar */
         .nav-btn {
             position: absolute;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             pointer-events: auto;
             border-radius: 6px;
             transition: box-shadow 0.12s ease, background-color 0.12s ease;
@@ -545,7 +548,7 @@
 
         /* tombol tak terlihat di atas gambar gerbang */
         .gate-btn {
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             z-index: 10;
             border-radius: 6px;
             transition: box-shadow 0.12s ease, transform 0.08s ease;
@@ -859,7 +862,7 @@
             aspect-ratio: 1;
             background-repeat: no-repeat;
             background-size: 100% 100%;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             user-select: none;
             transition: transform 0.1s ease, filter 0.12s ease;
         }
@@ -974,26 +977,69 @@
             50%      { transform: translateY(-14%) scale(1.06); }
         }
 
-        /* Kucing: lembar 12 frame (jalan 1-5, duduk 6, menjilat 7-12).
-           Frame-nya digerakkan dari JS, bukan steps(), karena urutannya
-           bercabang: berjalan berputar, lalu pindah sekali ke duduk, lalu
-           menjilat, lalu berputar di 6-12 saja. Perpindahan mendatarnya
-           tetap animasi CSS (transform) supaya tetap ringan.
-           Tinggi dan garis dasarnya dijaga sama seperti lembar lama, jadi
-           kucingnya tidak bergeser dari tempat semula. */
+        /* Burung terbang: lembar 6 frame.
+           Jalurnya di langit (sekitar 30% tinggi panggung) -- di bawah tulisan
+           PRESS START dan jauh di atas pasangan maupun kucing, jadi tidak ada
+           yang bertabrakan. */
+        #ttl-bird {
+            position: absolute;
+            left: 0;
+            top: 29%;
+            width: 3.1%;
+            aspect-ratio: 320 / 329;
+            z-index: 4;
+            background: url('gambarpixel/anim/bird_fly.png') 0 0 / 600% 100% no-repeat;
+            animation: birdFlap 0.5s steps(6) infinite,
+                       birdCross 15s linear infinite;
+        }
+        #ttl-bird::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            animation: birdBob 3.2s ease-in-out infinite;
+        }
+        @keyframes birdFlap {
+            from { background-position-x: 0%; }
+            to   { background-position-x: 120%; }   /* 6 langkah -> 0,20,...,100% */
+        }
+        @keyframes birdCross {
+            from { transform: translate(-200%, 0); }
+            to   { transform: translate(3400%, -60%); }
+        }
+        @keyframes birdBob {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(18%); }
+        }
+
+        /* KUCING - dua lembar terpisah
+           jalan  : 6 frame, dipakai selama kucing bergerak
+           menjilat: 12 frame, dipasang setelah sampai di dekat pasangan
+           Kedua lembar disusun dengan UKURAN SEL YANG SAMA (319x272) dan kaki
+           rata di dasar sel, jadi saat lembarnya ditukar kucing tidak
+           meloncat. Frame digerakkan dari JS karena urutannya bercabang;
+           perpindahan mendatarnya tetap transform CSS supaya ringan. */
         #ttl-cat {
             position: absolute;
             left: 0;
             top: 84.5%;
-            height: 9.47%;
-            aspect-ratio: 190 / 222;
+            width: 5.6%;
+            aspect-ratio: 319 / 272;
             z-index: 4;
-            background: url('gambarpixel/anim/cat_walk_groom.png') 0 0 / 1200% 100% no-repeat;
+            background-image: url('gambarpixel/anim/cat_walk.png');
+            background-size: 600% 100%;
+            background-repeat: no-repeat;
             animation: catCross 8s linear forwards;
         }
+        /* berhenti di dekat pasangan lalu menjilat tangan di tempat */
+        #ttl-cat.dandan {
+            background-image: url('gambarpixel/anim/cat_groom.png');
+            background-size: 1200% 100%;
+            animation: none;
+            transform: translateX(620%);
+        }
         @keyframes catCross {
-            from { transform: translateX(-178%); }
-            to   { transform: translateX(846%); }
+            from { transform: translateX(-130%); }
+            to   { transform: translateX(620%); }
         }
 
         /* Napas pasangan di layar judul.
@@ -1077,8 +1123,9 @@
         /* ---- pilih karakter ---- */
         .au-select-frame {
             display: flex;
-            gap: 4%;
-            padding: 2.2% 3%;
+            flex-direction: row;      /* selalu berdampingan, juga di layar kecil */
+            gap: 3%;
+            padding: 1.8% 2.4%;
             background: rgba(28, 34, 26, 0.82);
             border: 3px solid #8b7d63;
             box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.45), 4px 4px 0 rgba(0, 0, 0, 0.4);
@@ -1087,12 +1134,12 @@
             padding: 5px;
             border: 3px solid #8b7d63;
             background: rgba(12, 10, 14, 0.75);
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
         }
         .au-choice img {
             display: block;
-            height: clamp(70px, 13vw, 165px);
+            height: clamp(52px, 8.6vw, 118px);
             width: auto;
         }
         .au-choice:hover {
@@ -1254,7 +1301,7 @@
         .au-pg {
             height: clamp(20px, 3.4vw, 42px);
             width: auto;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: transform 0.1s ease, filter 0.12s ease;
         }
         .au-num { filter: brightness(0.72) saturate(0.5); }
@@ -1264,7 +1311,7 @@
             filter: brightness(1.3) saturate(1.15) drop-shadow(0 0 6px rgba(255, 210, 130, 0.95));
             transform: scale(1.12);
         }
-        .au-pg.off { opacity: 0.35; cursor: default; pointer-events: none; }
+        .au-pg.off { opacity: 0.35; cursor: var(--kursor), default; pointer-events: none; }
         .au-switch {
             padding: 0.7em 1.1em;
             background: #5d3a2a;
@@ -1274,7 +1321,7 @@
             font-size: clamp(0.38rem, 0.72vw, 0.64rem);
             color: #ffdca8;
             text-shadow: 1px 1px 0 #2b1a12;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             user-select: none;
             letter-spacing: 0.05em;
             transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.1s ease;
@@ -1324,7 +1371,7 @@
         .mus-btn {
             height: clamp(20px, 2.1vw, 34px);
             width: auto;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             user-select: none;
             transition: transform 0.1s ease, filter 0.12s ease;
         }
@@ -1382,7 +1429,7 @@
             background: rgba(61, 38, 38, 0.85);
             border: 3px solid #f6e7c8;
             padding: 14px 16px;
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             user-select: none;
             font-size: 0.9rem;
             line-height: 1;
@@ -1423,7 +1470,7 @@
             image-rendering: auto;
             border: 2px solid #f6e7c8;
             box-shadow: 2px 3px 6px rgba(0,0,0,0.5);
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: filter 0.15s ease, box-shadow 0.15s ease;
         }
         .slot-photo:hover {
@@ -1442,7 +1489,7 @@
             border: 3px solid #f6e7c8;
             border-radius: 4px;
             box-shadow: 2px 3px 8px rgba(0,0,0,0.6);
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
             transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
         }
         .photobooth-img:hover {
@@ -1463,7 +1510,6 @@
                 gap: 16px;
             }
             .sidebar { flex: 0 0 auto; }
-            .au-select-frame { flex-direction: column; gap: 3vw; }
             #view-profile > div {
                 flex-direction: column;
                 align-items: center;
@@ -1477,7 +1523,7 @@
             #screen-login .pixel-box { width: 90%; max-width: 450px; }
             .item-slot { width: 18vw; height: 18vw; max-width: 70px; max-height: 70px; }
             #screen-main { padding: 12px; }
-            .au-choice img { height: clamp(64px, 22vw, 130px); }
+            .au-choice img { height: clamp(44px, 11vw, 96px); }
             /* --- huruf ikut menyusut bersama panggungnya ---
                batas bawah clamp diturunkan; kalau tidak, huruf tetap
                berukuran layar besar dan meluber keluar kotaknya. */
@@ -1537,7 +1583,7 @@
             background: #5d3a2a;
             border: 2px solid #c69a63;
             box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
-            cursor: pointer;
+            cursor: var(--kursor), pointer;
         }
         @keyframes rhPutar {
             0%, 45%   { transform: rotate(0deg); }
@@ -1571,7 +1617,7 @@
         <div class="stage" id="title-stage">
 
             <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
-            <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
+            <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: var(--kursor), pointer; z-index: 10;"></div>
 
             <!-- Judul & PRESS START dipisah dari background supaya bisa bergerak -->
             <img id="ttl-press" src="gambarpixel/anim/press_hi.png" alt="Press Start"
@@ -1593,6 +1639,7 @@
                 </div>
                 <div id="ttl-heart"><i></i></div>
                 <div id="ttl-cat"></div>
+                <div id="ttl-bird"></div>
             </div>
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
@@ -1612,7 +1659,7 @@
                  style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
 
             <!-- Invisible input field positioned exactly over the baked-in stars -->
-        <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.5%; left: 42.09%; width: 15.92%; height: 5.81%; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.55rem, 1.35vw, 1rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.28em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
+        <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.9%; left: 42.09%; width: 15.92%; height: 5.0%; padding: 0 1%; line-height: 1; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.34rem, 0.86vw, 0.72rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.14em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
 
         <!-- Invisible click target for SUBMIT -->
         <div id="btn-login" class="gate-btn" style="position: absolute; top: 67.1%; left: 40.9%; width: 8.54%; height: 5.81%;"></div>
@@ -1648,7 +1695,7 @@
             </div>
 
             <!-- TOMBOL MUTE AUDIO -->
-            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; left: 2%; width: 5%; height: auto; z-index: 50; cursor: pointer; filter: drop-shadow(2px 2px 5px #000);">
+            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; left: 2%; width: 5%; height: auto; z-index: 50; cursor: var(--kursor), pointer; filter: drop-shadow(2px 2px 5px #000);">
 
             <!-- LEFT SIDEBAR (Invisible Interactive Overlays) -->
             <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
@@ -1676,7 +1723,7 @@
                 </div>
 
                 <!-- Tombol keluar (tidak ada di mockup asli) -->
-                <img id="btn-logout" src="gambarpixel/back icon .png" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
+                <img id="btn-logout" src="gambarpixel/back icon .png" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: var(--kursor), pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
             </div>
 
             <!-- CENTER CONTENT AREA -->
@@ -1856,7 +1903,7 @@
 
             <!-- RIGHT UI PANEL (Invisible Overlay) -->
             <div class="sidebar-interactive" style="position: absolute; right: 0; top: 0; width: 20%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding-top: 5%;">
-                <div style="width: 60%; height: 20%; cursor: pointer;" id="btn-profile" title="Lihat Profil"></div>
+                <div style="width: 60%; height: 20%; cursor: var(--kursor), pointer;" id="btn-profile" title="Lihat Profil"></div>
             </div>
 
             </div><!-- /lapisan overlay -->
@@ -2298,37 +2345,25 @@
             const heroScene = document.getElementById('hero-scene');
             const ttlCat = document.getElementById('ttl-cat');
 
-            // Penggerak frame kucing. Berdiri sendiri, tidak tersentuh animasi
-            // masuk -- jadi kucing tidak ter-reset saat pengguna kembali ke
-            // layar judul.
-            const CAT_FRAME = 12;
-            const CAT_MS = 140;
-            const catUrutan = {
-                jalan:  [0, 1, 2, 3],                  // frame 1-4: langkah
-                duduk:  [4, 5],                        // frame 5-6: berhenti lalu duduk
-                dandan: [6, 7, 8, 9, 10, 11],          // frame 7-12: menjilat tangan
-                diam:   [5, 6, 7, 8, 9, 10, 11]        // frame 6-12: diulang selama diam
-            };
-            let catUrut = catUrutan.jalan, catUlang = true, catIdx = 0, catLanjut = null;
+            // PENGGERAK FRAME KUCING
+            // Dua lembar terpisah: 6 frame berjalan, 12 frame menjilat. Selama
+            // berjalan hanya lembar berjalan yang diputar; setelah sampai di
+            // dekat pasangan barulah lembarnya ditukar. Ukuran sel kedua
+            // lembar sama dan kakinya rata di dasar sel, jadi pergantiannya
+            // tidak membuat kucing meloncat.
+            // Penggeraknya berdiri sendiri -- tidak tersentuh animasi masuk,
+            // jadi kucing tidak ter-reset saat pengguna kembali ke layar judul.
+            const CAT_JALAN_FRAME = 6;
+            const CAT_DANDAN_FRAME = 12;
+            const CAT_MS = 130;
+            let catJumlah = CAT_JALAN_FRAME;   // banyak frame lembar yang sedang dipakai
+            let catIdx = 0;
 
             function catGambar() {
-                if (ttlCat) ttlCat.style.backgroundPositionX = (catUrut[catIdx] * 100 / (CAT_FRAME - 1)) + '%';
-            }
-            function catPasang(urut, ulang, lanjut) {
-                catUrut = urut; catUlang = ulang; catLanjut = lanjut || null; catIdx = 0;
-                catGambar();
+                if (ttlCat) ttlCat.style.backgroundPositionX = (catIdx * 100 / (catJumlah - 1)) + '%';
             }
             function catDetak() {
-                catIdx++;
-                if (catIdx >= catUrut.length) {
-                    if (catUlang) {
-                        catIdx = 0;
-                    } else if (catLanjut) {
-                        const f = catLanjut; catLanjut = null; f(); return;
-                    } else {
-                        catIdx = catUrut.length - 1;
-                    }
-                }
+                catIdx = (catIdx + 1) % catJumlah;
                 catGambar();
             }
 
@@ -2341,11 +2376,11 @@
                     if (sudahBereaksi) return;
                     sudahBereaksi = true;
                     heroScene.classList.add('reacting');
-                    ttlCat.style.transform = 'translateX(846%)';   // berhenti di tempat
-                    // duduk sekali jalan -> menjilat sekali jalan -> berputar di 6-12
-                    catPasang(catUrutan.duduk, false, () =>
-                        catPasang(catUrutan.dandan, false, () =>
-                            catPasang(catUrutan.diam, true)));
+                    // tukar lembar: berhenti bergerak, mulai menjilat di tempat
+                    ttlCat.classList.add('dandan');
+                    catJumlah = CAT_DANDAN_FRAME;
+                    catIdx = 0;
+                    catGambar();
                 };
                 // dipicu saat langkah kucing selesai; ada cadangan waktu kalau
                 // animasi tidak pernah mengirim event (mis. tab tidak aktif)
