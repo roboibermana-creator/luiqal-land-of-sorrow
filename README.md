@@ -8,7 +8,7 @@ dipakai untuk berpindah tampilan dan membuka lightbox.
 
 Buka `index.html` langsung di browser. Tidak ada proses build.
 
-Kode masuk: `01052026`
+Kode masuk ada di dalam `index.html` (cari `inputPassword.value ===`).
 
 ## Isi tampilan
 
