@@ -24,6 +24,12 @@
             display: none !important;
         }
 
+        /* kursor pedang untuk seluruh halaman */
+        html, body { cursor: url('gambarpixel/anim/cursor_sword.png') 3 3, auto; }
+        .nav-btn, .au-pg, .au-choice, .au-switch, .vol-btn, .mus-btn,
+        #btn-start, #btn-mute, .slot-photo, .photobooth-img, .rh-lanjut,
+        button, a { cursor: url('gambarpixel/anim/cursor_sword.png') 3 3, pointer; }
+
         /* KETAJAMAN GAMBAR
            .stage paling lebar 1400 px sedangkan mockup aslinya 1024 px, jadi
            browser harus memperbesar 1,367x. Dengan image-rendering: pixelated
@@ -836,7 +842,7 @@
         #volume-ui {
             position: absolute;
             top: 3.4%;
-            right: 8.5%;
+            left: 8.5%;
             z-index: 50;
             pointer-events: auto;
             display: flex;
@@ -892,6 +898,86 @@
         }
 
 
+        /* ====== ADEGAN BERLAPIS DI LAYAR JUDUL ======
+           Pasangan tidak lagi menyatu di latar (latar memakai berkas yang
+           bagian pasangannya sudah dihapus), jadi hanya ada SATU salinan --
+           tidak mungkin tergambar ganda. Lapisan biasa dan lapisan tersenyum
+           ditumpuk di kotak yang sama supaya pergantiannya tidak bergeser. */
+        #hero-scene {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .cp-frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .cp-smile {
+            opacity: 0;
+            transition: opacity 0.45s ease;
+        }
+        #hero-scene.reacting .cp-smile { opacity: 1; }
+
+        /* hati muncul di atas kepala mereka */
+        #ttl-heart {
+            position: absolute;
+            /* tepat di celah antara kepala mereka: ubun-ubun ada di y 270,
+               hati mengambang sedikit di atasnya */
+            left: 48.24%;
+            top: 45.9%;
+            width: 3.4%;
+            z-index: 3;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.2, 1.5, 0.4, 1);
+        }
+        #ttl-heart > i {
+            display: block;
+            width: 100%;
+            padding-top: 92.5%;                 /* 222/240, mengikuti gambar hati */
+            background: url('gambarpixel/anim/heart_pop.png') 0 0 / 100% 100% no-repeat;
+        }
+        #hero-scene.reacting #ttl-heart {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #hero-scene.reacting #ttl-heart > i {
+            animation: heartFloat 2.6s ease-in-out 0.5s infinite;
+        }
+        @keyframes heartFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%      { transform: translateY(-14%) scale(1.06); }
+        }
+
+        /* kucing berjalan: lembar 6 frame */
+        #ttl-cat {
+            position: absolute;
+            left: 0;
+            top: 84.5%;
+            width: 5.6%;
+            aspect-ratio: 319 / 272;
+            z-index: 4;
+            background: url('gambarpixel/anim/cat_walk.png') 0 0 / 600% 100% no-repeat;
+            animation: catStep 0.72s steps(6) infinite,
+                       catCross 8s linear forwards;
+        }
+        @keyframes catStep {
+            from { background-position-x: 0%; }
+            to   { background-position-x: 600%; }
+        }
+        @keyframes catCross {
+            from { transform: translateX(-130%); }
+            to   { transform: translateX(620%); }
+        }
+        /* sampai di depan mereka -> kucing berhenti, kembali ke frame berdiri */
+        #hero-scene.reacting #ttl-cat {
+            animation: none;
+            background-position-x: 0%;
+            transform: translateX(620%);
+        }
+
         /* Napas pasangan di layar judul.
            Lapisan ini memakai BERKAS LATAR YANG SAMA, bukan potongan
            tersendiri: gambarnya diskalakan persis seukuran panggung
@@ -905,31 +991,13 @@
            dibiarkan utuh karena titik tumpu skala ada di sana. */
         #ttl-couple {
             position: absolute;
-            /* Kotak sengaja dilebihkan: bidang landai mask harus jatuh di
-               latar kosong, bukan di badan pasangan. Kalau tepi lengan atau
-               mahkota kena bidang landai, lapisannya jadi agak tembus di
-               situ dan salinan yang tergambar di latar ikut kelihatan --
-               itu yang terbaca sebagai garis ganda.
-               Ksatria mulai di x 397, gaun berakhir di x 633, ubun-ubun di
-               y 270, kaki di y 473 (koordinat gambar 1024x516). */
-            left: 36.328%;    /* x 372 */
-            top: 44.961%;     /* y 232 */
-            width: 27.539%;   /* 282 px */
-            height: 49.419%;  /* 255 px */
+            /* letaknya diukur dengan pencocokan pola terhadap latar:
+               x 394, y 265, 242x206 pada gambar 1024x516 */
+            left: 38.477%;
+            top: 51.357%;
+            width: 23.633%;
+            height: 39.922%;
             z-index: 2;
-            pointer-events: none;
-            background-image: url('gambarpixel/anim/title_bg_hi.jpg');
-            background-size: 363.120% 202.351%;
-            background-position: 50.134% 88.889%;
-            background-repeat: no-repeat;
-            -webkit-mask-image:
-                linear-gradient(180deg, transparent 0, #000 10.98%),
-                linear-gradient(90deg, transparent 0, #000 3.55%, #000 96.45%, transparent 100%);
-            -webkit-mask-composite: source-in;
-            mask-image:
-                linear-gradient(180deg, transparent 0, #000 10.98%),
-                linear-gradient(90deg, transparent 0, #000 3.55%, #000 96.45%, transparent 100%);
-            mask-composite: intersect;
             transform-origin: 50% 100%;
             animation: coupleBreath 4.4s ease-in-out infinite;
         }
@@ -1138,7 +1206,23 @@
             filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.45));
             transition: transform 0.15s ease;
         }
-        .au-slot-box:hover img { transform: scale(1.08) translateY(-3px); }
+        .au-slot-box:hover img {
+            transform: scale(1.08) translateY(-3px);
+            filter: drop-shadow(0 0 8px gold);
+        }
+        /* foto berbingkai ikut berkilau saat disorot */
+        .slot-photo,
+        .photobooth-img {
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .slot-photo:hover,
+        .photobooth-img:hover {
+            transform: scale(1.06);
+            filter: drop-shadow(0 0 8px gold);
+            z-index: 20;
+        }
+        .au-portrait { transition: filter 0.15s ease; }
+        .au-pbox:hover .au-portrait { filter: drop-shadow(0 0 8px gold); }
         /* ikon sumbernya jauh lebih besar dari ukuran tampil; diperkecil dengan
            penyaringan halus supaya tidak pecah bergerigi */
         .au-slot-box img { image-rendering: auto; }
@@ -1207,8 +1291,8 @@
         /* ====== PEMUTAR MUSIK (posisi tetap di layar) ====== */
         #music-bar {
             position: fixed;
-            left: 1.1vw;
-            top: 1.1vw;
+            right: 20px;
+            top: 20px;
             z-index: 120;
             display: flex;
             align-items: center;
@@ -1227,6 +1311,14 @@
             transition: transform 0.1s ease, filter 0.12s ease;
         }
         #btn-play { height: clamp(28px, 3vw, 48px); }
+        /* Harpa berdenyut selama lagu berjalan. Yang dianimasikan hanya
+           cahayanya, bukan ukurannya -- tombol yang terus berubah besar
+           membuat sasaran kliknya bergeser terus. */
+        #btn-play.main { animation: lutePulse 1.5s ease-in-out infinite; }
+        @keyframes lutePulse {
+            0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 210, 130, 0))   brightness(1); }
+            50%      { filter: drop-shadow(0 0 8px rgba(255, 210, 130, 0.95)) brightness(1.15); }
+        }
         .mus-btn:hover {
             transform: scale(1.12);
             filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 210, 130, 0.8));
@@ -1340,67 +1432,7 @@
             transform: scale(1.03);
             box-shadow: 0 0 12px rgba(255,225,180,0.85);
         }
-</style>
-</head>
-<body>
 
-    <!-- WADAH 1: TITLE SCREEN -->
-    <div id="screen-title" class="active full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg_clean_hi.jpg');">
-
-            <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
-            <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
-
-            <!-- Judul & PRESS START dipisah dari background supaya bisa bergerak -->
-            <img id="ttl-press" src="gambarpixel/anim/press_hi.png" alt="Press Start"
-                 style="position: absolute; left: 41.309%; top: 18.217%; width: 18.164%; height: 5.62%; z-index: 5;">
-            <img id="ttl-adventure" src="gambarpixel/anim/title_hi.png" alt="Our Adventure"
-                 style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
-
-            <!-- pasangan: potongan latar yang sama, dipisah supaya bisa bernapas -->
-            <div id="ttl-couple"></div>
-
-            <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
-            <div class="petal-layer petal-far" style="z-index: 3;"><i></i></div>
-            <div class="petal-layer petal-near" style="z-index: 4;"><i></i></div>
-        </div>
-    </div>
-
-    <!-- WADAH 2: LOGIN MODAL -->
-    <div id="screen-login" class="hidden full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg_hi.jpg');">
-
-            <!-- Penjaga gerbang: sprite sheet 2 frame (idle / menunduk saat mengetik) -->
-            <div class="guard guard-idle" id="guard-left"
-                 style="left: 17.349%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
-            <div class="guard guard-idle" id="guard-right"
-                 style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
-
-            <!-- Invisible input field positioned exactly over the baked-in stars -->
-        <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.5%; left: 42.09%; width: 15.92%; height: 5.81%; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.55rem, 1.35vw, 1rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.28em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
-
-        <!-- Invisible click target for SUBMIT -->
-        <div id="btn-login" class="gate-btn" style="position: absolute; top: 67.1%; left: 40.9%; width: 8.54%; height: 5.81%;"></div>
-        <!-- Invisible click target for CANCEL -->
-        <div id="btn-cancel" class="gate-btn" style="position: absolute; top: 67.1%; left: 50.4%; width: 8.67%; height: 5.81%;"></div>
-
-        <p id="error-msg" class="error-message hidden" style="position: absolute; bottom: 8%; width: 100%; text-align: center; color: #ff6b6b; text-shadow: 2px 2px #000; font-size: clamp(0.7rem, 1.6vw, 1rem); z-index: 10;">KODE SALAH!</p>
-        </div>
-    </div>
-
-    <!-- WADAH 3: MAIN DASHBOARD -->
-    <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
-        <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
-        <div id="dashboard-wrapper" style="position: relative; width: min(100vw, 1400px, calc(100vh * 1024 / 516)); aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
-            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
-
-            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
-                <!-- Re-enable pointer events for interactive areas -->
-                <style>
-                    #main-content-area { pointer-events: auto; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
-                    #main-content-area::-webkit-scrollbar { display: none; }
-                    .sidebar-interactive { pointer-events: auto; }
-            
         /* ==================================================================
            TATA LETAK LAYAR KECIL (HP) - sengaja ditaruh paling bawah supaya
            aturannya menimpa yang di atas.
@@ -1500,7 +1532,7 @@
                 left: 4px;
                 right: auto;
                 transform: none;
-                top: 4px;
+                top: 4px;   /* kanan atas dipakai panel volume saat layar pendek */
                 gap: 8px;
                 padding: 4px 8px;
             }
@@ -1512,7 +1544,74 @@
         @media (max-width: 768px) and (orientation: portrait) {
             body:not(.abaikan-putar) #rotate-hint { display: flex; }
         }
-    </style>
+</style>
+</head>
+<body>
+
+    <!-- WADAH 1: TITLE SCREEN -->
+    <div id="screen-title" class="active full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
+        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg_clean_hi.jpg');">
+
+            <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
+            <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
+
+            <!-- Judul & PRESS START dipisah dari background supaya bisa bergerak -->
+            <img id="ttl-press" src="gambarpixel/anim/press_hi.png" alt="Press Start"
+                 style="position: absolute; left: 41.309%; top: 18.217%; width: 18.164%; height: 5.62%; z-index: 5;">
+            <img id="ttl-adventure" src="gambarpixel/anim/title_hi.png" alt="Our Adventure"
+                 style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
+
+            <!-- Adegan berlapis: kucing lewat -> pasangan menoleh & tersenyum -> hati muncul -->
+            <div id="hero-scene">
+                <div id="ttl-couple">
+                    <img class="cp-frame" src="gambarpixel/anim/couple_calm.png" alt="Ksatria dan tuan putri">
+                    <img class="cp-frame cp-smile" src="gambarpixel/anim/couple_smile.png" alt="">
+                </div>
+                <div id="ttl-heart"><i></i></div>
+                <div id="ttl-cat"></div>
+            </div>
+
+            <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
+            <div class="petal-layer petal-far" style="z-index: 3;"><i></i></div>
+            <div class="petal-layer petal-near" style="z-index: 4;"><i></i></div>
+        </div>
+    </div>
+
+    <!-- WADAH 2: LOGIN MODAL -->
+    <div id="screen-login" class="hidden full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
+        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg_hi.jpg');">
+
+            <!-- Penjaga gerbang: sprite sheet 2 frame (idle / menunduk saat mengetik) -->
+            <div class="guard guard-idle" id="guard-left"
+                 style="left: 17.349%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
+            <div class="guard guard-idle" id="guard-right"
+                 style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
+
+            <!-- Invisible input field positioned exactly over the baked-in stars -->
+        <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.5%; left: 42.09%; width: 15.92%; height: 5.81%; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.55rem, 1.35vw, 1rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.28em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
+
+        <!-- Invisible click target for SUBMIT -->
+        <div id="btn-login" class="gate-btn" style="position: absolute; top: 67.1%; left: 40.9%; width: 8.54%; height: 5.81%;"></div>
+        <!-- Invisible click target for CANCEL -->
+        <div id="btn-cancel" class="gate-btn" style="position: absolute; top: 67.1%; left: 50.4%; width: 8.67%; height: 5.81%;"></div>
+
+        <p id="error-msg" class="error-message hidden" style="position: absolute; bottom: 8%; width: 100%; text-align: center; color: #ff6b6b; text-shadow: 2px 2px #000; font-size: clamp(0.7rem, 1.6vw, 1rem); z-index: 10;">KODE SALAH!</p>
+        </div>
+    </div>
+
+    <!-- WADAH 3: MAIN DASHBOARD -->
+    <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
+        <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
+        <div id="dashboard-wrapper" style="position: relative; width: min(100vw, 1400px, calc(100vh * 1024 / 516)); aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
+            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
+
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
+                <!-- Re-enable pointer events for interactive areas -->
+                <style>
+                    #main-content-area { pointer-events: auto; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+                    #main-content-area::-webkit-scrollbar { display: none; }
+                    .sidebar-interactive { pointer-events: auto; }
+            
     </style>
 
 
@@ -1525,7 +1624,7 @@
             </div>
 
             <!-- TOMBOL MUTE AUDIO -->
-            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; right: 2%; width: 5%; height: auto; z-index: 50; cursor: pointer; filter: drop-shadow(2px 2px 5px #000);">
+            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; left: 2%; width: 5%; height: auto; z-index: 50; cursor: pointer; filter: drop-shadow(2px 2px 5px #000);">
 
             <!-- LEFT SIDEBAR (Invisible Interactive Overlays) -->
             <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
@@ -2149,6 +2248,19 @@
                 bgmAudio.play().catch(err => console.log('[BGM] autoplay ditolak browser:', err));
             }
 
+            // ---- adegan layar judul: kucing tiba -> pasangan tersenyum, hati muncul ----
+            const heroScene = document.getElementById('hero-scene');
+            const ttlCat = document.getElementById('ttl-cat');
+            if (heroScene && ttlCat) {
+                const bereaksi = () => heroScene.classList.add('reacting');
+                // dipicu saat langkah kucing selesai; ada cadangan waktu kalau
+                // animasi tidak pernah mengirim event (mis. tab tidak aktif)
+                ttlCat.addEventListener('animationend', e => {
+                    if (e.animationName === 'catCross') bereaksi();
+                });
+                setTimeout(bereaksi, 9000);
+            }
+
             // ajakan memutar layar boleh diabaikan
             const rhLanjut = document.querySelector('#rotate-hint .rh-lanjut');
             if (rhLanjut) rhLanjut.addEventListener('click', () => document.body.classList.add('abaikan-putar'));
@@ -2160,6 +2272,7 @@
             function renderMusik() {
                 musTitle.textContent = playlist[trekIndex].judul;
                 btnPlay.classList.toggle('jeda', bgmAudio.paused);
+                btnPlay.classList.toggle('main', !bgmAudio.paused);
                 btnPlay.title = (bgmAudio.paused ? 'Putar' : 'Jeda') + ' \u2014 ' + playlist[trekIndex].judul;
                 btnMute.style.opacity = (bgmAudio.paused || volume === 0) ? '0.45' : '1';
             }
