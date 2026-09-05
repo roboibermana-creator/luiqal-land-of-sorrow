@@ -24,7 +24,15 @@
             display: none !important;
         }
 
-        /* ANTI-BLUR: semua aset piksel dirender tanpa anti-alias */
+        /* KETAJAMAN GAMBAR
+           .stage paling lebar 1400 px sedangkan mockup aslinya 1024 px, jadi
+           browser harus memperbesar 1,367x. Dengan image-rendering: pixelated
+           pembesaran pecahan seperti itu membuat lebar piksel tidak seragam
+           (ada yang 1 px, ada yang 2 px) -- itu yang terlihat kasar dan buram.
+           Semua aset pixel art kini disimpan jauh lebih besar daripada ukuran
+           tampilnya, jadi browser hanya perlu MEMPERKECIL, dan pengecilan
+           halus menghasilkan tepi tajam yang rata. Karena itu seluruh gambar
+           memakai penyaringan bawaan. */
         img,
         .stage,
         #scrolling-bg,
@@ -35,14 +43,7 @@
         .ld-horse,
         .petal-layer > i,
         .dash-scene > i,
-        .dash-horse {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: crisp-edges;
-            image-rendering: pixelated;
-            shape-rendering: crispEdges;
-        }
-        /* foto asli (bukan pixel art) tetap pakai penyaringan halus */
+        .dash-horse,
         .slot-photo,
         .photobooth-img,
         #lightbox img {
@@ -576,7 +577,6 @@
             width: 100%;
             height: 200%;
             background-repeat: repeat;
-            image-rendering: pixelated;
             will-change: transform;
         }
         .petal-far > i {
@@ -608,7 +608,6 @@
             background-image: url('gambarpixel/anim/guard_sheet.png');
             background-repeat: no-repeat;
             background-size: 200% 100%;
-            image-rendering: pixelated;
             transform-origin: 50% 100%;
             animation: breathe 3.6s ease-in-out infinite;
         }
@@ -633,7 +632,7 @@
             top: 0;
             height: 100%;
             width: 300%;
-            background-image: url('gambarpixel/anim/dash_loop.png');
+            background-image: url('gambarpixel/anim/dash_loop_hi.png');
             background-size: auto 100%;
             background-repeat: repeat-x;
             will-change: transform;
@@ -1279,19 +1278,19 @@
 
     <!-- WADAH 1: TITLE SCREEN -->
     <div id="screen-title" class="active full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg.jpg');">
+        <div class="stage" style="background-image: url('gambarpixel/anim/title_bg_hi.jpg');">
 
             <!-- Area klik START (ditaruh lebih dulu supaya bisa menyorot teks di bawahnya) -->
             <div id="btn-start" style="position: absolute; top: 14.5%; left: 36%; width: 28%; height: 13%; cursor: pointer; z-index: 10;"></div>
 
             <!-- Judul & PRESS START dipisah dari background supaya bisa bergerak -->
-            <img id="ttl-press" src="gambarpixel/anim/press.png" alt="Press Start"
+            <img id="ttl-press" src="gambarpixel/anim/press_hi.png" alt="Press Start"
                  style="position: absolute; left: 41.309%; top: 18.217%; width: 18.164%; height: 5.62%; z-index: 5;">
-            <img id="ttl-adventure" src="gambarpixel/anim/title.png" alt="Our Adventure"
+            <img id="ttl-adventure" src="gambarpixel/anim/title_hi.png" alt="Our Adventure"
                  style="position: absolute; left: 31.055%; top: 7.752%; width: 37.988%; height: 9.69%; z-index: 5;">
 
             <!-- pasangan dipotong dari latar supaya bisa bernapas -->
-            <img id="ttl-couple" src="gambarpixel/anim/couple.png" alt=""
+            <img id="ttl-couple" src="gambarpixel/anim/couple_hi.png" alt=""
                  style="position: absolute; left: 37.891%; top: 46.512%; width: 25.586%; height: 47.868%; z-index: 2; pointer-events: none;">
 
             <!-- kelopak bunga berjatuhan (2 lapis, beda kecepatan) -->
@@ -1302,7 +1301,7 @@
 
     <!-- WADAH 2: LOGIN MODAL -->
     <div id="screen-login" class="hidden full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg.jpg');">
+        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg_hi.jpg');">
 
             <!-- Penjaga gerbang: sprite sheet 2 frame (idle / menunduk saat mengetik) -->
             <div class="guard guard-idle" id="guard-left"
@@ -1326,7 +1325,7 @@
     <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
         <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
         <div id="dashboard-wrapper" style="position: relative; width: 100vw; max-width: 1400px; aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
-            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/mockup_dashboard.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
+            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
 
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
                 <!-- Re-enable pointer events for interactive areas -->
@@ -1352,23 +1351,23 @@
             <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
                 <!-- Tombol menu: ikon PNG terpisah menimpa ikon yang tergambar di mockup -->
                 <div id="btn-dashboard-view"     class="nav-btn" style="left: 17%;   top: 28.5%; width: 62%; height: 11.5%;" title="Beranda">
-                    <img class="nav-ico" src="gambarpixel/anim/ico_horse.png" alt=""
+                    <img class="nav-ico" src="gambarpixel/anim/ico_horse_hi.png" alt=""
                          style="left: 1.06%; top: 23.46%; width: 28.95%; height: 68.16%;">
                 </div>
                 <div id="btn-photobooth-gallery" class="nav-btn" style="left: 17.7%; top: 44.5%; width: 60%; height: 8.5%;"  title="Photobooth">
-                    <img class="nav-ico" src="gambarpixel/anim/ico_photobooth.png" alt=""
+                    <img class="nav-ico" src="gambarpixel/anim/ico_photobooth_hi.png" alt=""
                          style="left: -3.67%; top: -1.84%; width: 35.41%; height: 103.50%;">
                 </div>
                 <div id="btn-random-gallery"     class="nav-btn" style="left: 17.7%; top: 55.5%; width: 60%; height: 9%;"    title="Photo Random">
-                    <img class="nav-ico" src="gambarpixel/anim/ico_random.png" alt=""
+                    <img class="nav-ico" src="gambarpixel/anim/ico_random_hi.png" alt=""
                          style="left: -3.67%; top: -0.49%; width: 35.41%; height: 95.98%;">
                 </div>
                 <div id="btn-romance-gallery"    class="nav-btn" style="left: 17.7%; top: 66.8%; width: 60%; height: 9%;"    title="Photo Romance">
-                    <img class="nav-ico" src="gambarpixel/anim/ico_romance.png" alt=""
+                    <img class="nav-ico" src="gambarpixel/anim/ico_romance_hi.png" alt=""
                          style="left: -3.67%; top: -4.34%; width: 35.41%; height: 97.75%;">
                 </div>
                 <div id="btn-about-us"           class="nav-btn" style="left: 17.7%; top: 78.1%; width: 60%; height: 9%;"    title="About Us">
-                    <img class="nav-ico" src="gambarpixel/anim/ico_about.png" alt=""
+                    <img class="nav-ico" src="gambarpixel/anim/ico_about_hi.png" alt=""
                          style="left: -3.67%; top: -1.5%; width: 35.41%; height: 98%;">
                     <span class="nav-label">about us</span>
                 </div>
@@ -1378,7 +1377,7 @@
             </div>
 
             <!-- CENTER CONTENT AREA -->
-            <div id="main-content-area" style="position: absolute; left: 17.773%; top: 13.953%; width: 52.540%; height: 83.140%; z-index: 5;">
+            <div id="main-content-area" style="position: absolute; left: 17.500%; top: 13.953%; width: 52.813%; height: 83.140%; z-index: 5;">
 
                 <!-- DEFAULT DASHBOARD VIEW (Knight on Horse) -->
                 <!-- Left completely empty because the Knight on Horse is already beautifully painted on the mockup background! -->
@@ -1509,10 +1508,10 @@
                     <div id="au-select" class="au-screen">
                         <div class="au-select-frame">
                             <div class="au-choice" data-char="men" title="Rowland">
-                                <img src="gambarpixel/anim/au/portrait_knight.png" alt="Rowland">
+                                <img src="gambarpixel/anim/au/portrait_knight_hi.png" alt="Rowland">
                             </div>
                             <div class="au-choice" data-char="women" title="Princess">
-                                <img src="gambarpixel/anim/au/portrait_princess.png" alt="Princess">
+                                <img src="gambarpixel/anim/au/portrait_princess_hi.png" alt="Princess">
                             </div>
                         </div>
                         <p class="au-select-title">CHOOSE YOUR CHARACTER</p>
@@ -1523,12 +1522,12 @@
                         <div class="au-footer">
                             <div class="au-switch" id="au-switch" role="button" tabindex="0">&lt;&lt; GANTI KARAKTER</div>
                             <div class="au-pager">
-                                <img class="au-pg" id="au-prev" src="gambarpixel/anim/au/pg_prev.png" alt="Sebelumnya">
-                                <img class="au-pg au-num" data-page="1" src="gambarpixel/anim/au/pg_1.png" alt="1">
-                                <img class="au-pg au-num" data-page="2" src="gambarpixel/anim/au/pg_2.png" alt="2">
-                                <img class="au-pg au-num" data-page="3" src="gambarpixel/anim/au/pg_3.png" alt="3">
-                                <img class="au-pg au-num" data-page="4" src="gambarpixel/anim/au/pg_4.png" alt="4">
-                                <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next.png" alt="Berikutnya">
+                                <img class="au-pg" id="au-prev" src="gambarpixel/anim/au/pg_prev_hi.png" alt="Sebelumnya">
+                                <img class="au-pg au-num" data-page="1" src="gambarpixel/anim/au/pg_1_hi.png" alt="1">
+                                <img class="au-pg au-num" data-page="2" src="gambarpixel/anim/au/pg_2_hi.png" alt="2">
+                                <img class="au-pg au-num" data-page="3" src="gambarpixel/anim/au/pg_3_hi.png" alt="3">
+                                <img class="au-pg au-num" data-page="4" src="gambarpixel/anim/au/pg_4_hi.png" alt="4">
+                                <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next_hi.png" alt="Berikutnya">
                             </div>
                         </div>
                     </div>
@@ -1539,12 +1538,12 @@
                     <div style="background: #e8d0aa; border: 6px solid #8b5a2b; padding: 3vw; width: 70%; display: flex; justify-content: space-around; box-shadow: 0 0 20px #000; border-radius: 12px;">
                         <div style="text-align: center; width: 40%;">
                             <h3 class="pixel-text" style="color: #4a3b2c;">PRINCE</h3>
-                            <img src="gambarpixel/bagian landing page/icons/couple_prince_princess.png" style="width: 80%; clip-path: inset(0 50% 0 0); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));">
+                            <img src="gambarpixel/anim/couple_icon_hi.png" style="width: 80%; clip-path: inset(0 50% 0 0); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));">
                             <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Ksatria</p>
                         </div>
                         <div style="text-align: center; width: 40%;">
                             <h3 class="pixel-text" style="color: #4a3b2c;">PRINCESS</h3>
-                            <img src="gambarpixel/bagian landing page/icons/couple_prince_princess.png" style="width: 80%; clip-path: inset(0 0 0 50%); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); transform: scaleX(-1);">
+                            <img src="gambarpixel/anim/couple_icon_hi.png" style="width: 80%; clip-path: inset(0 0 0 50%); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); transform: scaleX(-1);">
                             <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Tuan Putri</p>
                         </div>
                     </div>
@@ -1630,7 +1629,7 @@
                 if (bgImage) {
                     document.getElementById('scrolling-bg').style.backgroundImage = 'url("gambarpixel/' + bgImage + '")';
                 } else {
-                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/mockup_dashboard.png')";
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.png')";
                 }
             }
 
@@ -1742,14 +1741,14 @@
             // 3. Aksi Sidebar
             btnDashboardView.addEventListener('click', () => { markActive(btnDashboardView); showView(viewDashboard); });
             if(btnPhotoboothGallery) btnPhotoboothGallery.addEventListener('click', () => { markActive(btnPhotoboothGallery); showView(viewGalleryPhotobooth); });
-            if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random.png'); });
-            if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance.png'); });
+            if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random_hi.png'); });
+            if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance_hi.png'); });
 
             if(btnProfile) {
                 btnProfile.addEventListener('click', () => {
                     allViews.forEach(v => v.classList.add('hidden'));
                     viewProfile.classList.remove('hidden');
-                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/mockup_dashboard.png')";
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.png')";
                 });
             }
 
@@ -1777,7 +1776,7 @@
             const AU_DATA = {
                 men: {
                     nama: 'LOML',
-                    portrait: AU + 'portrait_knight.png',
+                    portrait: AU + 'portrait_knight_hi.png',
                     profil: [
                         ['NAMA ASLI', 'Muhamad Iqbal Hidayat'],
                         ['TEMPAT &amp; TANGGAL LAHIR', 'Bandung, 17 Maret 2006'],
@@ -1792,7 +1791,7 @@
                 },
                 women: {
                     nama: 'ZBUB',
-                    portrait: AU + 'portrait_princess.png',
+                    portrait: AU + 'portrait_princess_hi.png',
                     profil: [
                         ['NAMA ASLI', 'Azzahra Azka Lulu Azminah'],
                         ['TEMPAT &amp; TANGGAL LAHIR', 'Bandung, 1 Mei 2007'],
