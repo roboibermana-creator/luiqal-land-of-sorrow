@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Kisah Kopel Piksel</title>
+    <!-- PRELOAD LAYAR JUDUL
+         Gambar yang dipasang lewat background CSS (latar, pohon, kucing,
+         burung, kelopak) baru diminta browser setelah tata letak dihitung,
+         jadi datangnya paling akhir dan layar sempat tampak kosong. Dengan
+         preload semuanya langsung diantre bersama <img> judul & pasangan. -->
+    <link rel="preload" as="image" href="gambarpixel/anim/title_bg_clean_hi.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="gambarpixel/anim/pohon_burung.webp">
+    <link rel="preload" as="image" href="gambarpixel/anim/cat_walk.webp">
+    <link rel="preload" as="image" href="gambarpixel/anim/bird_idle.webp">
+    <link rel="preload" as="image" href="gambarpixel/anim/petals_near.png">
+    <link rel="preload" as="image" href="gambarpixel/anim/petals_far.png">
+    <link rel="preload" as="image" href="gambarpixel/anim/cursor_sword.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans&display=swap');
 
@@ -475,6 +487,40 @@
             45%      { transform: scaleY(1.016); }
         }
 
+        /* GELEMBUNG DIALOG PENJAGA
+           Anak elemen penjaga, jadi ikut posisi penjaga kiri/kanan tanpa
+           dihitung di JS. Ubun-ubun helm ada di y 14% sel sprite dan kepala
+           tepat di tengah sel, jadi ujung ekor gelembung ditaruh di
+           (50%, 88% dari dasar). Tiap gambar gelembung beda lebarnya, jadi
+           yang dipatok TINGGInya supaya ukuran tulisannya seragam; lebar
+           mengikuti rasio gambar. Ujung ekor tiap gambar tidak persis di
+           tengah -> disimpan di --ekor (dari JS) dan dipakai untuk
+           menggeser gambar supaya ekornya yang jatuh di titik jangkar. */
+        .guard-bubble {
+            position: absolute;
+            left: 50%;
+            bottom: 88%;
+            height: 38%;
+            width: auto;
+            --ekor: 50%;
+            transform: translateX(calc(-1 * var(--ekor)));
+            transform-origin: var(--ekor) 100%;
+            image-rendering: pixelated;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;                     /* selalu di atas sprite penjaga */
+        }
+        /* muncul: memudar masuk + membesar sedikit dari bawah ke atas,
+           ditahan, lalu memudar keluar. Satu animasi = sekaligus pewaktu. */
+        .guard-bubble.tampil { animation: guardBubblePop 1.9s ease-out forwards; }
+        @keyframes guardBubblePop {
+            0%   { opacity: 0; transform: translateX(calc(-1 * var(--ekor))) translateY(18%) scale(0.55); }
+            14%  { opacity: 1; transform: translateX(calc(-1 * var(--ekor))) translateY(-5%) scale(1.07); }
+            24%  { opacity: 1; transform: translateX(calc(-1 * var(--ekor))) translateY(0)   scale(1); }
+            76%  { opacity: 1; transform: translateX(calc(-1 * var(--ekor))) translateY(0)   scale(1); }
+            100% { opacity: 0; transform: translateX(calc(-1 * var(--ekor))) translateY(-8%) scale(0.96); }
+        }
+
         /* tombol menu tak terlihat di atas sidebar yang tergambar */
         .nav-btn {
             position: absolute;
@@ -613,8 +659,10 @@
         .guard {
             position: absolute;
             z-index: 2;
-            pointer-events: none;
-            background-image: url('gambarpixel/anim/guard_sheet.png');
+            /* bisa diklik/disentuh: seluruh kotak sprite jadi area sapaan */
+            pointer-events: auto;
+            cursor: var(--kursor), pointer;
+            background-image: url('gambarpixel/anim/guard_sheet.webp');
             background-repeat: no-repeat;
             background-size: 200% 100%;
             transform-origin: 50% 100%;
@@ -641,7 +689,7 @@
             top: 0;
             height: 100%;
             width: 300%;
-            background-image: url('gambarpixel/anim/dash_loop_hi.png');
+            background-image: url('gambarpixel/anim/dash_loop_hi.webp');
             background-size: auto 100%;
             background-repeat: repeat-x;
             will-change: transform;
@@ -662,7 +710,7 @@
             aspect-ratio: 683 / 706;
             transform: translateX(-50%);
             z-index: 2;
-            background-image: url('gambarpixel/anim/horse_walk.png');
+            background-image: url('gambarpixel/anim/horse_walk.webp');
             background-size: 300% 100%;
             background-repeat: no-repeat;
             animation: walkCycle 1.15s step-end infinite;
@@ -745,7 +793,7 @@
             left: 0;
             width: 200vw;
             height: 100%;
-            background: url('gambarpixel/anim/loading_sky.png') 0 0 / 100vw 100% repeat-x;
+            background: url('gambarpixel/anim/loading_sky.webp') 0 0 / 100vw 100% repeat-x;
             animation: ldSky 9s linear infinite;
             will-change: transform;
         }
@@ -788,7 +836,7 @@
             z-index: 2;
             width: min(48vw, 620px);
             aspect-ratio: 935 / 699;
-            background-image: url('gambarpixel/anim/gallop_sheet.png');
+            background-image: url('gambarpixel/anim/gallop_sheet.webp');
             background-size: 200% 100%;
             background-repeat: no-repeat;
             animation: ldGallop 0.45s steps(2) infinite,
@@ -866,8 +914,8 @@
             user-select: none;
             transition: transform 0.1s ease, filter 0.12s ease;
         }
-        #btn-vol-down { background-image: url('gambarpixel/anim/btn_vol_down.png'); }
-        #btn-vol-up   { background-image: url('gambarpixel/anim/btn_vol_up.png'); }
+        #btn-vol-down { background-image: url('gambarpixel/anim/btn_vol_down.webp'); }
+        #btn-vol-up   { background-image: url('gambarpixel/anim/btn_vol_up.webp'); }
         .vol-btn:hover {
             transform: scale(1.12);
             filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 210, 130, 0.8));
@@ -925,7 +973,7 @@
         #ttl-bg {
             position: absolute;
             inset: 0;
-            background: url('gambarpixel/anim/title_bg_clean_hi.jpg') center / cover no-repeat;
+            background: url('gambarpixel/anim/title_bg_clean_hi.webp') center / cover no-repeat;
         }
         #ttl-art.masuk {
             animation: heroSettle 1.5s ease-out both;
@@ -992,7 +1040,7 @@
             width: 31.250%;
             aspect-ratio: 1024 / 1536;
             z-index: 3;
-            background: url('gambarpixel/anim/pohon untuk burung.png') 0 0 / 100% 100% no-repeat;
+            background: url('gambarpixel/anim/pohon_burung.webp') 0 0 / 100% 100% no-repeat;
             pointer-events: none;
         }
         #ttl-tree > #ttl-bird {
@@ -1004,17 +1052,17 @@
         #ttl-bird {
             position: absolute;
             aspect-ratio: 636 / 633;
-            background-image: url('gambarpixel/anim/bird_idle.png');
+            background-image: url('gambarpixel/anim/bird_idle.webp');
             background-size: 200% 100%;
             background-repeat: no-repeat;
             transform-origin: 54.09% 71.41%;   /* titik hinggap di dalam sel */
         }
         /* hanya saat diam burung bisa disapa */
         #ttl-bird.diam { pointer-events: auto; cursor: var(--kursor), pointer; }
-        #ttl-bird.bersiap { background-image: url('gambarpixel/anim/bird_preflight.png'); background-size: 300% 100%; }
-        #ttl-bird.terbang { background-image: url('gambarpixel/anim/bird_fly.png');       background-size: 600% 100%;
+        #ttl-bird.bersiap { background-image: url('gambarpixel/anim/bird_preflight.webp'); background-size: 300% 100%; }
+        #ttl-bird.terbang { background-image: url('gambarpixel/anim/bird_fly.webp');       background-size: 600% 100%;
                             animation: birdAway 2.4s ease-in forwards; }
-        #ttl-bird.pulang  { background-image: url('gambarpixel/anim/bird_return.png');    background-size: 400% 100%;
+        #ttl-bird.pulang  { background-image: url('gambarpixel/anim/bird_return.webp');    background-size: 400% 100%;
                             animation: birdBack 2.2s ease-out forwards; }
         #ttl-bird.pergi   { visibility: hidden; }
         /* pergi: melaju ke kanan di bawah tulisan, lalu naik keluar di sudut kanan atas
@@ -1039,7 +1087,7 @@
             bottom: 51.673%;
             width: 45.898%;
             aspect-ratio: 1026 / 460;
-            background: url('gambarpixel/anim/emote_burung.png') 0 0 / 100% 100% no-repeat;
+            background: url('gambarpixel/anim/emote_burung.webp') 0 0 / 100% 100% no-repeat;
             transform: translateX(-49.95%);
             transform-origin: 49.95% 100%;
             opacity: 0;
@@ -1069,7 +1117,7 @@
             width: 5.6%;
             aspect-ratio: 319 / 272;
             z-index: 5;
-            background-image: url('gambarpixel/anim/cat_walk.png');
+            background-image: url('gambarpixel/anim/cat_walk.webp');
             background-size: 600% 100%;
             background-repeat: no-repeat;
             animation: catCross 8s linear forwards;
@@ -1088,7 +1136,7 @@
             bottom: 97%;
             width: 215%;
             aspect-ratio: 1361 / 657;
-            background: url('gambarpixel/anim/emote_miaw.png') 0 0 / 100% 100% no-repeat;
+            background: url('gambarpixel/anim/emote_miaw.webp') 0 0 / 100% 100% no-repeat;
             /* ujung ekor gelembung ada di 48.27% lebar kanvas -> titik itu yang
                ditaruh tepat di atas kepala */
             transform: translateX(-48.27%);
@@ -1111,7 +1159,7 @@
         }
         /* berhenti di dekat pasangan lalu menjilat tangan di tempat */
         #ttl-cat.dandan {
-            background-image: url('gambarpixel/anim/cat_groom.png');
+            background-image: url('gambarpixel/anim/cat_groom.webp');
             background-size: 1200% 100%;
             animation: none;
             transform: translateX(620%);
@@ -1155,7 +1203,7 @@
            HALAMAN ABOUT US
            ==================================================================== */
         #view-about-us {
-            background: url('gambarpixel/anim/au/bg_corridor.png') center bottom / cover no-repeat;
+            background: url('gambarpixel/anim/au/bg_corridor.webp') center bottom / cover no-repeat;
         }
         .au-screen {
             position: absolute;
@@ -1712,8 +1760,8 @@
                 <div id="ttl-art">
                     <div id="ttl-bg"></div>
                     <div id="ttl-couple">
-                        <img class="cp-frame" src="gambarpixel/anim/couple_calm.png" alt="Ksatria dan tuan putri">
-                        <img class="cp-frame cp-smile" src="gambarpixel/anim/couple_smile.png" alt="">
+                        <img class="cp-frame" src="gambarpixel/anim/couple_calm.webp" alt="Ksatria dan tuan putri">
+                        <img class="cp-frame cp-smile" src="gambarpixel/anim/couple_smile.webp" alt="">
                     </div>
                 </div>
                 <div id="ttl-heart"><i></i></div>
@@ -1734,13 +1782,13 @@
 
     <!-- WADAH 2: LOGIN MODAL -->
     <div id="screen-login" class="hidden full-screen-container" style="background: #111; display: flex; justify-content: center; align-items: center;">
-        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg_hi.jpg');">
+        <div class="stage" style="background-image: url('gambarpixel/anim/pw_bg_hi.webp');">
 
             <!-- Penjaga gerbang: sprite sheet 2 frame (idle / menunduk saat mengetik) -->
-            <div class="guard guard-idle" id="guard-left"
-                 style="left: 17.349%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
-            <div class="guard guard-idle" id="guard-right"
-                 style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"></div>
+            <div class="guard guard-idle" id="guard-left" title="Sapa penjaganya"
+                 style="left: 17.349%; top: 29.210%; width: 13.272%; height: 48.128%;"><img class="guard-bubble" alt=""></div>
+            <div class="guard guard-idle" id="guard-right" title="Sapa penjaganya"
+                 style="left: 71.158%; top: 29.210%; width: 13.272%; height: 48.128%;"><img class="guard-bubble" alt=""></div>
 
             <!-- Invisible input field positioned exactly over the baked-in stars -->
         <input type="password" id="password-input" class="login-input" maxlength="10" style="position: absolute; top: 59.9%; left: 42.09%; width: 15.92%; height: 5.0%; padding: 0 1%; line-height: 1; background: #4e3132; border: none; border-radius: 4px; color: #f7e0b0; text-align: center; font-size: clamp(0.34rem, 0.86vw, 0.72rem); outline: none; caret-color: #f7e0b0; z-index: 10; letter-spacing: 0.14em; text-shadow: 2px 2px 0 rgba(0,0,0,0.55); box-shadow: inset 0 2px 4px rgba(0,0,0,0.45);">
@@ -1758,7 +1806,7 @@
     <div id="screen-main" class="hidden full-screen-container" style="background: #2b2b2b; display: flex; justify-content: center; align-items: center;">
         <!-- The main container now uses the original 1024x516 mockup dashboard as its pristine background -->
         <div id="dashboard-wrapper" style="position: relative; width: min(100vw, 1400px, calc(100vh * 1024 / 516)); aspect-ratio: 1024/516; box-shadow: 0 0 20px #000; overflow: hidden;">
-            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.png') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
+            <div id="scrolling-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('gambarpixel/anim/dashboard_hi.webp') top left / 100% 100% no-repeat; z-index: 0; transition: background-image 0.3s ease;"></div>
 
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
                 <!-- Re-enable pointer events for interactive areas -->
@@ -1779,7 +1827,7 @@
             </div>
 
             <!-- TOMBOL MUTE AUDIO -->
-            <img id="btn-mute" src="gambarpixel/sound icon.png" style="pointer-events: auto; position: absolute; top: 4%; left: 2%; width: 5%; height: auto; z-index: 50; cursor: var(--kursor), pointer; filter: drop-shadow(2px 2px 5px #000);">
+            <img id="btn-mute" src="gambarpixel/sound icon.webp" style="pointer-events: auto; position: absolute; top: 4%; left: 2%; width: 5%; height: auto; z-index: 50; cursor: var(--kursor), pointer; filter: drop-shadow(2px 2px 5px #000);">
 
             <!-- LEFT SIDEBAR (Invisible Interactive Overlays) -->
             <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
@@ -1807,7 +1855,7 @@
                 </div>
 
                 <!-- Tombol keluar (tidak ada di mockup asli) -->
-                <img id="btn-logout" src="gambarpixel/back icon .png" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: var(--kursor), pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
+                <img id="btn-logout" src="gambarpixel/back icon .webp" style="position: absolute; left: 4%; bottom: 1.5%; width: 26%; height: auto; cursor: var(--kursor), pointer; pointer-events: auto; filter: drop-shadow(2px 2px 5px #000); transition: transform 0.12s ease, filter 0.12s ease;" title="Keluar">
             </div>
 
             <!-- CENTER CONTENT AREA -->
@@ -1821,12 +1869,12 @@
                     <!-- kuda jalan di tempat: sprite sheet 3 frame -->
                     <div class="dash-horse"></div>
                     <img class="dash-moon" src="gambarpixel/anim/moon.png" alt="">
-                    <img class="dash-logo" src="gambarpixel/anim/logo_sorrow.png" alt="Land of Sorrow">
+                    <img class="dash-logo" src="gambarpixel/anim/logo_sorrow.webp" alt="Land of Sorrow">
                 </div>
 
 
                 <!-- GALLERY PHOTOBOOTH -->
-                <div id="view-gallery-photobooth" class="view-section hidden" style="position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: url('gambarpixel/bagian photobooth/background/assets_bg_castle_balcony.png') center/cover no-repeat;">
+                <div id="view-gallery-photobooth" class="view-section hidden" style="position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: url('gambarpixel/bagian photobooth/background/assets_bg_castle_balcony.webp') center/cover no-repeat;">
                     <div style="width: 92%; height: 90%; overflow-y: auto; padding: 3%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4%; background: rgba(0,0,0,0.6); border-radius: 8px; border: 3px solid #8b5a2b; box-shadow: inset 0 0 10px #000;">
                         <img src="photo/thumb/photobooth/photobooth1.jpg" data-full="photo/photobooth/photobooth1.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/photobooth2.jpg" data-full="photo/photobooth/photobooth2.jpg" class="photobooth-img" alt="">
@@ -1876,43 +1924,43 @@
 
                 <!-- GALLERY RANDOM -->
                 <div id="view-gallery-random" class="view-section hidden" style="position: absolute; width: 100%; height: 700%;">
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random1.jpg" data-full="photo/photorandom/page 1/photo_random1.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random2.jpg" data-full="photo/photorandom/page 1/photo_random2.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random3.jpg" data-full="photo/photorandom/page 1/photo_random3.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 1/photo_random4.jpg" data-full="photo/photorandom/page 1/photo_random4.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random5.jpg" data-full="photo/photorandom/page 2/photo_random5.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random6.jpg" data-full="photo/photorandom/page 2/photo_random6.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random7.jpg" data-full="photo/photorandom/page 2/photo_random7.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 2/photo_random8.jpg" data-full="photo/photorandom/page 2/photo_random8.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random9.jpg" data-full="photo/photorandom/page 3/photo_random9.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random10.jpg" data-full="photo/photorandom/page 3/photo_random10.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random11.jpg" data-full="photo/photorandom/page 3/photo_random11.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 3/photo_random12.jpg" data-full="photo/photorandom/page 3/photo_random12.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random13.jpg" data-full="photo/photorandom/page 4/photo_random13.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random14.jpg" data-full="photo/photorandom/page 4/photo_random14.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random15.jpg" data-full="photo/photorandom/page 4/photo_random15.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 4/photo_random16.jpg" data-full="photo/photorandom/page 4/photo_random16.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random17.jpg" data-full="photo/photorandom/page 5/photo_random17.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random18.jpg" data-full="photo/photorandom/page 5/photo_random18.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random19.jpg" data-full="photo/photorandom/page 5/photo_random19.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 5/photo_random20.jpg" data-full="photo/photorandom/page 5/photo_random20.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random21.jpg" data-full="photo/photorandom/page 6/photo_random21.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random22.jpg" data-full="photo/photorandom/page 6/photo_random22.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random23.jpg" data-full="photo/photorandom/page 6/photo_random23.jpg" alt="" style="left: 23.27%; top: 49.24%; width: 14.97%; height: 17.50%; transform: rotate(-7deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 6/photo_random24.jpg" data-full="photo/photorandom/page 6/photo_random24.jpg" alt="" style="left: 69.64%; top: 48.23%; width: 14.16%; height: 16.66%; transform: rotate(6deg);">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_random_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 7/photo_random25.jpg" data-full="photo/photorandom/page 7/photo_random25.jpg" alt="" style="left: 23.82%; top: 18.38%; width: 13.15%; height: 15.41%; transform: rotate(-6deg);">
                         <img class="slot-photo" src="photo/thumb/photorandom/page 7/photo_random26.jpg" data-full="photo/photorandom/page 7/photo_random26.jpg" alt="" style="left: 45.45%; top: 29.80%; width: 13.52%; height: 15.13%;">
                     </div>
@@ -1920,17 +1968,17 @@
 
                 <!-- GALLERY ROMANCE -->
                 <div id="view-gallery-romance" class="view-section hidden" style="position: absolute; width: 100%; height: 300%;">
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance1.jpg" data-full="photo/photoromance/page 1/photo_romance1.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance2.jpg" data-full="photo/photoromance/page 1/photo_romance2.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 1/photo_romance3.jpg" data-full="photo/photoromance/page 1/photo_romance3.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance4.jpg" data-full="photo/photoromance/page 2/photo_romance4.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance5.jpg" data-full="photo/photoromance/page 2/photo_romance5.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 2/photo_romance6.jpg" data-full="photo/photoromance/page 2/photo_romance6.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
                     </div>
-                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.png');">
+                    <div class="gallery-page" style="background-image: url('gambarpixel/anim/panel_romance_hi.webp');">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance7.jpg" data-full="photo/photoromance/page 3/photo_romance7.jpg" alt="" style="left: 23.23%; top: 53.00%; width: 12.92%; height: 15.08%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance8.jpg" data-full="photo/photoromance/page 3/photo_romance8.jpg" alt="" style="left: 44.80%; top: 30.59%; width: 12.92%; height: 15.63%;">
                         <img class="slot-photo" src="photo/thumb/photoromance/page 3/photo_romance9.jpg" data-full="photo/photoromance/page 3/photo_romance9.jpg" alt="" style="left: 69.35%; top: 50.63%; width: 12.92%; height: 15.63%;">
@@ -1972,12 +2020,12 @@
                     <div style="background: #e8d0aa; border: 6px solid #8b5a2b; padding: 3vw; width: 70%; display: flex; justify-content: space-around; box-shadow: 0 0 20px #000; border-radius: 12px;">
                         <div style="text-align: center; width: 40%;">
                             <h3 class="pixel-text" style="color: #4a3b2c;">PRINCE</h3>
-                            <img src="gambarpixel/anim/couple_icon_hi.png" style="width: 80%; clip-path: inset(0 50% 0 0); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));">
+                            <img src="gambarpixel/anim/couple_icon_hi.webp" style="width: 80%; clip-path: inset(0 50% 0 0); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5));">
                             <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Ksatria</p>
                         </div>
                         <div style="text-align: center; width: 40%;">
                             <h3 class="pixel-text" style="color: #4a3b2c;">PRINCESS</h3>
-                            <img src="gambarpixel/anim/couple_icon_hi.png" style="width: 80%; clip-path: inset(0 0 0 50%); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); transform: scaleX(-1);">
+                            <img src="gambarpixel/anim/couple_icon_hi.webp" style="width: 80%; clip-path: inset(0 0 0 50%); filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.5)); transform: scaleX(-1);">
                             <p style="font-size: 1.2rem; font-weight: bold; color: #333;">Sang Tuan Putri</p>
                         </div>
                     </div>
@@ -2045,7 +2093,9 @@
             ];
             let trekIndex = 0;
             const bgmAudio = new Audio(encodeURI(playlist[0].berkas));
-            bgmAudio.preload = 'auto';
+            // 'none': MP3 2 MB jangan berebut jalur unduhan dengan gambar layar
+            // judul. Diunduh belakangan lewat antrean pemanasan (lihat bawah).
+            bgmAudio.preload = 'none';
             const btnMute = document.getElementById('btn-mute');
 
 
@@ -2071,7 +2121,7 @@
                 if (bgImage) {
                     document.getElementById('scrolling-bg').style.backgroundImage = 'url("gambarpixel/' + bgImage + '")';
                 } else {
-                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.png')";
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.webp')";
                 }
             }
 
@@ -2176,6 +2226,34 @@
             inputPassword.addEventListener('input', guardPeek);
             inputPassword.addEventListener('keydown', guardPeek);
             inputPassword.addEventListener('blur', () => { clearTimeout(guardTimer); setGuard(false); });
+
+            // ---- penjaga diklik/disentuh -> gelembung dialog acak di atas kepalanya ----
+            // Tiap penjaga punya kumpulan gelembung dan keadaan sendiri (satu
+            // <img> di dalam elemennya), jadi kiri dan kanan tidak saling
+            // mengganggu. Animasinya sekaligus pewaktu: klik bertubi-tubi pada
+            // penjaga yang sama tidak menumpuk gelembung -- animasinya dimulai
+            // ulang (sekalian mengocok ulang dialognya). 'ekor' = letak ujung
+            // ekor gelembung dalam % lebar gambar, diukur dari berkasnya.
+            const dialogPenjaga = {
+                'guard-left':  [{ src: 'gambarpixel/anim/guard_left_1.webp', ekor: 47.85 }, { src: 'gambarpixel/anim/guard_left_2.webp', ekor: 49.81 }, { src: 'gambarpixel/anim/guard_left_3.webp', ekor: 50.03 }],
+                'guard-right': [{ src: 'gambarpixel/anim/guard_right_1.webp', ekor: 49.97 }, { src: 'gambarpixel/anim/guard_right_2.webp', ekor: 54.80 }, { src: 'gambarpixel/anim/guard_right_3.webp', ekor: 49.60 }]
+            };
+            guards.forEach(g => {
+                const pool = dialogPenjaga[g.id];
+                const bubble = g.querySelector('.guard-bubble');
+                if (!pool || !bubble) return;
+                // jangan sampai klik penjaga mencuri fokus dari kolom sandi
+                g.addEventListener('pointerdown', e => e.preventDefault());
+                g.addEventListener('click', () => {
+                    const pilih = pool[Math.floor(Math.random() * pool.length)];
+                    bubble.classList.remove('tampil');
+                    bubble.src = pilih.src;
+                    bubble.style.setProperty('--ekor', pilih.ekor + '%');
+                    void bubble.offsetWidth;          // paksa hitung ulang supaya animasi mulai dari awal
+                    bubble.classList.add('tampil');
+                });
+                bubble.addEventListener('animationend', () => bubble.classList.remove('tampil'));
+            });
             inputPassword.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') attemptLogin();
             });
@@ -2183,14 +2261,14 @@
             // 3. Aksi Sidebar
             btnDashboardView.addEventListener('click', () => { markActive(btnDashboardView); showView(viewDashboard); });
             if(btnPhotoboothGallery) btnPhotoboothGallery.addEventListener('click', () => { markActive(btnPhotoboothGallery); showView(viewGalleryPhotobooth); });
-            if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random_hi.png'); });
-            if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance_hi.png'); });
+            if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random_hi.webp'); });
+            if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance_hi.webp'); });
 
             if(btnProfile) {
                 btnProfile.addEventListener('click', () => {
                     allViews.forEach(v => v.classList.add('hidden'));
                     viewProfile.classList.remove('hidden');
-                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.png')";
+                    document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.webp')";
                 });
             }
 
@@ -2484,7 +2562,7 @@
                 const bubble = ttlCat.querySelector('.cat-bubble');
                 ttlCat.addEventListener('click', () => {
                     const pilih = emote[Math.floor(Math.random() * emote.length)];
-                    bubble.style.backgroundImage = "url('gambarpixel/anim/emote_" + pilih + ".png')";
+                    bubble.style.backgroundImage = "url('gambarpixel/anim/emote_" + pilih + ".webp')";
                     bubble.classList.remove('tampil');
                     void bubble.offsetWidth;          // paksa hitung ulang supaya animasi mulai dari awal
                     bubble.classList.add('tampil');
@@ -2619,6 +2697,57 @@
             ['click', 'keydown'].forEach(ev =>
                 document.addEventListener(ev, startMusic, { once: true }));
 
+            // ================= PEMANASAN ASET LAYAR BERIKUTNYA =================
+            // Layar yang masih display:none tidak diunduh gambarnya oleh
+            // browser, jadi overlay loading & layar sandi tadinya tampil
+            // kosong saat pertama kali dibuka. Semua diunduh SATU PER SATU,
+            // baru dimulai setelah event load (layar judul sudah utuh) supaya
+            // tidak berebut jalur dengan latar/pohon/kucing yang sedang tampil.
+            // Urutannya mengikuti urutan layar yang akan ditemui pengguna.
+            const antreanPemanasan = [
+                'gambarpixel/anim/loading_sky.webp',
+                'gambarpixel/anim/gallop_sheet.webp',
+                'gambarpixel/anim/pw_bg_hi.webp',
+                'gambarpixel/anim/guard_sheet.webp',
+                'gambarpixel/anim/guard_left_1.webp',
+                'gambarpixel/anim/guard_left_2.webp',
+                'gambarpixel/anim/guard_left_3.webp',
+                'gambarpixel/anim/guard_right_1.webp',
+                'gambarpixel/anim/guard_right_2.webp',
+                'gambarpixel/anim/guard_right_3.webp',
+                'MUSIK',
+                'gambarpixel/anim/cat_groom.webp',
+                'gambarpixel/anim/emote_miaw.webp',
+                'gambarpixel/anim/emote_purr.webp',
+                'gambarpixel/anim/emote_meong.webp',
+                'gambarpixel/anim/bird_preflight.webp',
+                'gambarpixel/anim/bird_fly.webp',
+                'gambarpixel/anim/bird_return.webp',
+                'gambarpixel/anim/emote_burung.webp',
+                'gambarpixel/anim/heart_pop.png',
+                'gambarpixel/anim/dashboard_hi.webp',
+                'gambarpixel/anim/dash_loop_hi.webp',
+                'gambarpixel/anim/horse_walk.webp',
+                'gambarpixel/anim/logo_sorrow.webp',
+                'gambarpixel/anim/btn_vol_up.webp',
+                'gambarpixel/anim/btn_vol_down.webp'
+            ];
+            function panaskanBerikutnya() {
+                const src = antreanPemanasan.shift();
+                if (!src) return;
+                if (src === 'MUSIK') {
+                    // kalau pengguna sudah menekan START, play() sudah mengunduhnya sendiri
+                    if (!musicStarted) { bgmAudio.preload = 'auto'; bgmAudio.load(); }
+                    panaskanBerikutnya();
+                    return;
+                }
+                const im = new Image();
+                im.onload = im.onerror = () => setTimeout(panaskanBerikutnya, 0);
+                im.src = src;
+            }
+            if (document.readyState === 'complete') panaskanBerikutnya();
+            else window.addEventListener('load', panaskanBerikutnya, { once: true });
+
             // 5. Aksi Tombol Mute Audio
             btnMute.addEventListener('click', () => {
                 if (bgmAudio.paused) {
@@ -2640,11 +2769,11 @@
 
     <!-- PEMUTAR MUSIK (tetap terlihat walau halaman digulir) -->
     <div id="music-bar">
-        <img class="mus-btn" id="btn-track-prev" src="gambarpixel/anim/btn_prev.png"
+        <img class="mus-btn" id="btn-track-prev" src="gambarpixel/anim/btn_prev.webp"
              alt="Lagu sebelumnya" title="Lagu sebelumnya">
-        <img class="mus-btn" id="btn-play" src="gambarpixel/anim/btn_play.png"
+        <img class="mus-btn" id="btn-play" src="gambarpixel/anim/btn_play.webp"
              alt="Putar / jeda" title="Putar / jeda">
-        <img class="mus-btn" id="btn-track-next" src="gambarpixel/anim/btn_next.png"
+        <img class="mus-btn" id="btn-track-next" src="gambarpixel/anim/btn_next.webp"
              alt="Lagu berikutnya" title="Lagu berikutnya">
         <span id="mus-title"></span>
     </div>
