@@ -2377,6 +2377,37 @@
                 const TOP = ST.map(g => { for (let i = 0; i < g.length; i++) if (g[i] >= 0) return (i / SW) | 0; return SH; });
                 const NAMA = ['Bibit', 'Tunas', 'Sakura muda', 'Sakura besar', 'Sakura mekar'];
 
+                // ---------- KSATRIA & PUTRI (sprite pixel, bisa berjalan) ----------
+                // Saat diam keduanya berdiri saling berhadapan, bernapas dan
+                // berkedip. Siram -> ksatria berjalan ke pohon, menuang air,
+                // kembali. Pupuk -> putri berjalan ke pohon, menabur pupuk,
+                // kembali. Setelah tugas selesai muncul hati di antara mereka.
+                // Sprite sheet dari generator gambar, sudah diolah: latar dihapus,
+                // tinggi tokoh disamakan (300 px), pusat kepala sejajar di headX.
+                // jalan = 6 frame, kerja = 4 frame (ksatria menyiram, putri menabur).
+                // Semua menghadap kanan; x tokoh = posisi pusat kepala.
+                const SPR = {"k": {"jalan": {"src": "gambarpixel/anim/knight_jalan.webp", "cw": 156, "ch": 305, "n": 6, "headX": 83.0, "h": 300}, "kerja": {"src": "gambarpixel/anim/knight_kerja.webp", "cw": 178, "ch": 305, "n": 4, "headX": 63.1, "h": 300}}, "p": {"jalan": {"src": "gambarpixel/anim/princess_jalan.webp", "cw": 171, "ch": 305, "n": 6, "headX": 92.9, "h": 300}, "kerja": {"src": "gambarpixel/anim/princess_kerja.webp", "cw": 230, "ch": 305, "n": 4, "headX": 85.4, "h": 300}}};
+                for (const t in SPR) for (const j in SPR[t]) { const im = new Image(); im.src = SPR[t][j].src; SPR[t][j].im = im; }
+                const tokoh = {
+                    k: { spr: SPR.k, diamF: 1, x: 0, rumah: 0, arah: 1, mode: 'diam', t: 0, d: 0, tugas: null, kedip: 0, kedipNanti: 9, lonjak: 0, siram: true },
+                    p: { spr: SPR.p, diamF: 2, x: 0, rumah: 0, arah: -1, mode: 'diam', t: 0, d: 0, tugas: null, kedip: 0, kedipNanti: 9, lonjak: 0, siram: false }
+                };
+                const TINGGI_TOKOH = 27;   // unit pixel adegan (pohon mekar = 38)
+                let tokohSiap = false;
+                function aturRumah() {
+                    tokoh.k.rumah = TX + SW + 8.5; tokoh.p.rumah = TX + SW + 22.5;
+                    if (!tokohSiap) { tokoh.k.x = tokoh.k.rumah; tokoh.p.x = tokoh.p.rumah; tokohSiap = true; }
+                }
+                const imgHati = new Image();
+                imgHati.src = 'gambarpixel/anim/heart_pop.png';
+                const siap = im => im.complete && im.naturalWidth > 0;
+                let hati = [], hatiSantai = 6 + Math.random() * 6;
+                function senang(banyak) {
+                    tokoh.k.lonjak = tokoh.p.lonjak = 0.9;
+                    const n = banyak ? 8 : 4;
+                    for (let i = 0; i < n; i++) hati.push({ t: -i * 0.2, ph: Math.random() * 6.28, dx: (Math.random() - .5) * 6 });
+                }
+
                 // ---------- aturan perawatan ----------
                 const KEY = 'coupleweb-taman-v1';
                 const JAM = 3600e3;
@@ -2408,7 +2439,8 @@
                     AH = Math.max(60, Math.round(AW * r.height / r.width));
                     cv.width = AW * S; cv.height = AH * S;
                     x.imageSmoothingEnabled = false;
-                    GY = AH - 9; TX = Math.round((AW - SW) / 2); TY = GY - SH + 2;
+                    GY = AH - 9; TX = Math.round((AW - SW) / 2) - 12; TY = GY - SH + 2;
+                    aturRumah();
                     stars = []; for (let i = 0; i < 40; i++) stars.push([Math.random() * AW | 0, Math.random() * AH * 0.5 | 0, Math.random() * 6.28, .6 + Math.random() * 1.2]);
                     kunang = []; for (let i = 0; i < 7; i++) kunang.push({ x: Math.random() * AW, y: AH * 0.45 + Math.random() * (GY - AH * 0.45 - 4), ph: Math.random() * 6.28 });
                     bg = document.createElement('canvas'); bg.width = AW * S; bg.height = AH * S;
@@ -2431,7 +2463,7 @@
                 new ResizeObserver(tataLetak).observe(view);
 
                 let cur = tahapDari(s.g), prev = cur, fade = 1, wm = layu() ? 1 : 0;
-                let parts = [], can = 0, canX = 0, canY = 0, T = 0, petalT = 0, wind = 0, last = performance.now();
+                let parts = [], T = 0, petalT = 0, wind = 0, last = performance.now();
                 const BASE = SH * S;
                 function canopy(k) { const g = ST[k], o = []; for (let i = 0; i < g.length; i++) { const y = (i / SW) | 0; if (g[i] >= 0 && LEAF.has(g[i]) && y < 32) o.push([i % SW, y]); } return o; }
                 let cp = canopy(cur);
@@ -2445,6 +2477,57 @@
                     const lapis = (img, al) => { x.globalAlpha = al; for (let r = top; r < BASE; r++) { const d = Math.round(bendAt(r, k, A)); x.drawImage(img, 0, r, SW * S, 1, TX * S + d, TY * S + r, SW * S, 1); } };
                     lapis(SPN[k], a);
                     if (wm > 0.01) lapis(SPW[k], a * wm);
+                    x.restore();
+                }
+                const KECEPATAN = 11;          // unit pixel per detik
+                const TITIK_KERJA = () => TX + 33;   // berdiri di kanan batang, menghadap pohon
+                function gerakTokoh(o, dt, aksi) {
+                    o.kedipNanti -= dt;
+                    if (o.kedipNanti <= 0) { o.kedip = .15; o.kedipNanti = 2.5 + Math.random() * 4; }
+                    o.kedip = Math.max(0, o.kedip - dt);
+                    o.lonjak = Math.max(0, o.lonjak - dt);
+                    if (o.mode === 'diam' && o.tugas) { o.mode = 'pergi'; o.tugas = null; }
+                    if (o.mode === 'pergi' || o.mode === 'pulang') {
+                        const tuju = o.mode === 'pergi' ? TITIK_KERJA() : o.rumah;
+                        const sisa = tuju - o.x, langkah = KECEPATAN * dt;
+                        o.arah = sisa < 0 ? -1 : 1;
+                        if (Math.abs(sisa) <= langkah) {
+                            o.x = tuju; o.d = 0;
+                            if (o.mode === 'pergi') { o.mode = 'kerja'; o.t = 0; o.arah = -1; }
+                            else { o.mode = 'diam'; o.arah = o === tokoh.k ? 1 : -1; senang(false); }
+                        } else { o.x += Math.sign(sisa) * langkah; o.d += langkah; }
+                    } else if (o.mode === 'kerja') {
+                        o.t += dt;
+                        // pose kerja menghadap kiri: ujung cerat / tangan ada ~11 unit di depan kepala
+                        const depan = o.x - 11;
+                        if (aksi === 'siram' && o.t > .6 && o.t < 1.45 && Math.random() < dt * 10)
+                            parts.push({ k: 'sp', x: depan - 1 + Math.random() * 2, y: GY - .5, vx: (Math.random() - .5) * 8, vy: -5 - Math.random() * 4, l: .35 });
+                        if (aksi === 'tabur' && o.t > .55 && o.t < 1.45 && Math.random() < dt * 14) {
+                            const L = .8 + Math.random() * .8;
+                            parts.push({ k: 's', x: depan - 2 - Math.random() * 16, y: GY - 14 - Math.random() * 14, l: L, L: L, ph: Math.random() * 6.28 });
+                        }
+                        if (o.t > 1.7) { o.mode = 'pulang'; o.d = 0; }
+                    }
+                }
+                function frameKerja(t) {
+                    if (t < .3) return 0;
+                    if (t < .55) return 1;
+                    if (t < 1.45) return 2 + (Math.floor((t - .55) / .2) % 2);
+                    return 0;
+                }
+                function gambarTokoh(o) {
+                    let lb = o.spr.jalan, f = o.diamF, sy = 1, bob = 0;
+                    if (o.mode === 'pergi' || o.mode === 'pulang') f = Math.floor(o.d / 1.25) % lb.n;
+                    else if (o.mode === 'kerja') { lb = o.spr.kerja; f = frameKerja(o.t); }
+                    else sy = 1 + .012 * (.5 + .5 * Math.sin(T * 2.1 + (o === tokoh.k ? 0 : 1.4)));   // bernapas
+                    if (!(lb.im.complete && lb.im.naturalWidth)) return;
+                    if (o.lonjak > 0) bob = -Math.abs(Math.sin((0.9 - o.lonjak) / 0.9 * Math.PI * 2)) * 2.4;
+                    const u = TINGGI_TOKOH / lb.h;          // unit adegan per piksel lembar
+                    x.save();
+                    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+                    x.translate(o.x * S, (GY + 1 + bob) * S);
+                    x.scale(o.arah < 0 ? -1 : 1, sy);
+                    x.drawImage(lb.im, f * lb.cw, 0, lb.cw, lb.ch, -lb.headX * u * S, -lb.ch * u * S, lb.cw * u * S, lb.ch * u * S);
                     x.restore();
                 }
                 function frame(now) {
@@ -2467,6 +2550,12 @@
                     const e = 1 - Math.pow(1 - fade, 3);
                     if (fade < 1) gambarPohon(prev, 1 - e, 1, A);
                     gambarPohon(cur, e, .82 + .18 * e + Math.sin(e * Math.PI) * .04, A);
+                    // ---- ksatria & putri ----
+                    gerakTokoh(tokoh.k, dt, 'siram');
+                    gerakTokoh(tokoh.p, dt, 'tabur');
+                    gambarTokoh(tokoh.k); gambarTokoh(tokoh.p);
+                    hatiSantai -= dt;
+                    if (hatiSantai <= 0) { hatiSantai = 7 + Math.random() * 8; if (tokoh.k.mode === 'diam' && tokoh.p.mode === 'diam') hati.push({ t: 0, ph: Math.random() * 6.28, dx: (Math.random() - .5) * 3 }); }
                     // kelopak / daun kering berjatuhan
                     petalT += dt;
                     const pink = cur >= 2 && wm < .5;
@@ -2508,13 +2597,23 @@
                         x.fillRect(Math.round(p.x * S), Math.round(Math.min(p.y, GY - .3) * S), w, 4); x.globalAlpha = 1;
                         if (p.land > 3.4 || p.x > AW + 2 || p.x < -2) parts.splice(i, 1);
                     }
-                    if (can > 0) {                   // penyiram muncul, miring, lalu hilang
-                        can -= dt;
-                        const a = Math.min(1, (1.4 - can) / .3, can / .3), ea = a * a * (3 - 2 * a);
-                        x.save(); x.globalAlpha = ea; x.translate(canX * S, (canY - 4 * (1 - ea)) * S); x.rotate(-.6 * ea); x.scale(S, S);
-                        const r = (a2, b, w2, h, c) => { x.fillStyle = c; x.fillRect(a2, b, w2, h); };
-                        r(-6, -3, 12, 7, '#8b96b3'); r(-6, -3, 12, 1, '#b4bdd3'); r(-6, 3, 12, 1, '#6d7894'); r(-10, -2, 4, 2, '#8b96b3'); r(6, -7, 2, 5, '#8b96b3'); r(5, -8, 4, 1, '#8b96b3');
-                        x.restore();
+                    // ---- hati melayang dari antara pasangan ----
+                    if (siap(imgHati)) {
+                        const hx0 = (tokoh.k.x + tokoh.p.x) / 2, hy0 = GY - 28;
+                        for (let i = hati.length - 1; i >= 0; i--) {
+                            const hh = hati[i];
+                            hh.t += dt;
+                            if (hh.t < 0) continue;
+                            const u = hh.t / 1.7;
+                            if (u >= 1) { hati.splice(i, 1); continue; }
+                            const hx = hx0 + hh.dx * u + Math.sin(hh.t * 3 + hh.ph) * 1.6, hy = hy0 - u * 16;
+                            const sz = (u < .15 ? .4 + .6 * (u / .15) : 1) * 4.4;
+                            x.save();
+                            x.imageSmoothingEnabled = true;
+                            x.globalAlpha = u > .6 ? (1 - u) / .4 : 1;
+                            x.drawImage(imgHati, (hx - sz / 2) * S, (hy - sz / 2) * S, sz * S, sz * 222 / 240 * S);
+                            x.restore();
+                        }
                     }
                 }
                 requestAnimationFrame(frame);
@@ -2529,7 +2628,7 @@
                 function perbarui() {
                     majukanWaktu();
                     const k = tahapDari(s.g);
-                    if (k !== cur) { prev = cur; cur = k; fade = 0; cp = canopy(k); pesan('Pohonnya tumbuh jadi ' + NAMA[k].toLowerCase() + '!'); }
+                    if (k !== cur) { prev = cur; cur = k; fade = 0; cp = canopy(k); pesan('Pohonnya tumbuh jadi ' + NAMA[k].toLowerCase() + '!'); senang(true); }
                     const prog = k < 4 ? (s.g - BATAS[k]) / (BATAS[k + 1] - BATAS[k]) : 1;
                     elAir.style.width = Math.round(s.w) + '%'; elAirTx.textContent = Math.round(s.w) + '%';
                     elAir.classList.toggle('kering', layu());
@@ -2550,9 +2649,7 @@
                     s.w = Math.min(100, s.w + 35);
                     if (now - s.lg >= JEDA_SIRAM_TUMBUH) { s.g += 1; s.lg = now; }
                     simpan();
-                    // penyiram muncul tepat di atas puncak tanaman tahap sekarang
-                    can = 1.4; canX = TX + 39; canY = TY + Math.max(4, TOP[cur] - 6);
-                    for (let i = 0; i < 14; i++) setTimeout(() => parts.push({ k: 'd', x: canX - 13 + Math.random() * 6, y: canY - 2.5, vy: 4 }), 350 + i * 60);
+                    if (tokoh.k.mode === 'diam') tokoh.k.tugas = 'siram';
                     pesan('Segar lagi!');
                     perbarui();
                 });
@@ -2563,7 +2660,7 @@
                     if (jeda > 0) { pesan('Pupuk lagi dalam ' + sisaWaktu(jeda)); return; }
                     s.g += 8; s.lf = Date.now();
                     simpan();
-                    for (let i = 0; i < 18; i++) { const L = .9 + Math.random() * .9; parts.push({ k: 's', x: TX + 8 + Math.random() * 30, y: GY - 2 - Math.random() * 26, l: L, L: L, ph: Math.random() * 6.28 }); }
+                    if (tokoh.p.mode === 'diam') tokoh.p.tugas = 'tabur';
                     pesan('Pupuknya masuk!');
                     perbarui();
                 });
