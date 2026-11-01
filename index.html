@@ -2389,8 +2389,8 @@
                 const SPR = {"k": {"jalan": {"src": "gambarpixel/anim/knight_jalan.webp", "cw": 156, "ch": 305, "n": 6, "headX": 83.0, "h": 300}, "kerja": {"src": "gambarpixel/anim/knight_kerja.webp", "cw": 178, "ch": 305, "n": 4, "headX": 63.1, "h": 300}}, "p": {"jalan": {"src": "gambarpixel/anim/princess_jalan.webp", "cw": 171, "ch": 305, "n": 6, "headX": 92.9, "h": 300}, "kerja": {"src": "gambarpixel/anim/princess_kerja.webp", "cw": 230, "ch": 305, "n": 4, "headX": 85.4, "h": 300}}};
                 for (const t in SPR) for (const j in SPR[t]) { const im = new Image(); im.src = SPR[t][j].src; SPR[t][j].im = im; }
                 const tokoh = {
-                    k: { spr: SPR.k, diamF: 1, x: 0, rumah: 0, arah: 1, mode: 'diam', t: 0, d: 0, tugas: null, kedip: 0, kedipNanti: 9, lonjak: 0, siram: true },
-                    p: { spr: SPR.p, diamF: 2, x: 0, rumah: 0, arah: -1, mode: 'diam', t: 0, d: 0, tugas: null, kedip: 0, kedipNanti: 9, lonjak: 0, siram: false }
+                    k: { spr: SPR.k, diamF: 1, x: 0, rumah: 0, arah: 1, mode: 'diam', t: 0, d: 0, tugas: null, lonjak: 0, siram: true, blend: 1, debu: 0, antre: [], bub: null, lb0: null, f0: 0 },
+                    p: { spr: SPR.p, diamF: 2, x: 0, rumah: 0, arah: -1, mode: 'diam', t: 0, d: 0, tugas: null, lonjak: 0, siram: false, blend: 1, debu: 0, antre: [], bub: null, lb0: null, f0: 0 }
                 };
                 const TINGGI_TOKOH = 27;   // unit pixel adegan (pohon mekar = 38)
                 let tokohSiap = false;
@@ -2479,23 +2479,76 @@
                     if (wm > 0.01) lapis(SPW[k], a * wm);
                     x.restore();
                 }
-                const KECEPATAN = 11;          // unit pixel per detik
+                const KECEPATAN = 10;          // unit pixel per detik (rata-rata)
                 const TITIK_KERJA = () => TX + 33;   // berdiri di kanan batang, menghadap pohon
+                const acak = arr => arr[Math.random() * arr.length | 0];
+                // ---------- GELEMBUNG TEKS ----------
+                // Satu gelembung per tokoh; teks muncul huruf demi huruf, gelembung
+                // memantul masuk, ditahan, lalu memudar. Balasan bisa diantre.
+                function bicara(o, teks, tunda = 0, lama = 0) {
+                    o.antre.push({ teks, tunda, lama: lama || Math.min(4.2, 1.6 + teks.length * .07) });
+                }
+                const BARIS = {
+                    obrolan: [
+                        ['k', 'Pohon kita makin cantik ya', 'p', 'Kayak aku dong, hehe'],
+                        ['p', 'Lihat bulannya, bagus banget!', 'k', 'Lebih bagus kamu sih'],
+                        ['k', 'Nanti kalau mekar kita piknik di sini', 'p', 'Janji ya!'],
+                        ['p', 'Kangen...', 'k', 'Aku di sini kok'],
+                        ['k', 'Capek jagain kerajaan seharian', 'p', 'Sini aku pukpuk'],
+                        ['p', 'Menurutmu kapan mekarnya?', 'k', 'Kalau kita rajin rawat, pasti cepat'],
+                        ['k', 'Aku sayang kamu', 'p', 'Aku lebih sayang kamu!'],
+                        ['p', 'Anginnya sejuk ya', 'k', 'Mau pakai jubahku?']
+                    ],
+                    klikK: ['Hm? Ada apa?', 'Siap, tuan putri!', 'Hehe, geli', 'Aku jagain pohonnya kok', 'Semangat ya hari ini!'],
+                    klikP: ['Halo~', 'Jangan lupa siram ya', 'Hihi', 'Pohonnya lucu kan?', 'Kamu udah makan?'],
+                    siramPergi: ['Waktunya menyiram!', 'Pohonnya haus nih', 'Biar aku yang siram'],
+                    siramSemangat: ['Semangat!', 'Hati-hati ya~', 'Yang banyak airnya!'],
+                    siramPulang: ['Udah segar lagi', 'Beres!'],
+                    pupukPergi: ['Biar cepat mekar~', 'Pupuk spesial dariku', 'Ini vitamin buat pohon'],
+                    pupukSemangat: ['Pinter banget', 'Wah, berkilau!', 'Pupuknya wangi'],
+                    pupukPulang: ['Selesai~', 'Semoga cepat tumbuh'],
+                    tumbuh: ['Wah, tumbuh!', 'Lihat, dia membesar!'],
+                    layu: ['Pohonnya kehausan...', 'Daunnya layu, siram yuk', 'Kasihan pohonnya']
+                };
+                let obrolanNanti = 5 + Math.random() * 5, layuNanti = 2;
+                function mulaiJalan(o, tuju) {
+                    o.dari = o.x; o.ke = tuju; o.jt = 0;
+                    o.jdur = Math.max(.5, Math.abs(tuju - o.x) / KECEPATAN);
+                    o.arah = tuju < o.x ? -1 : 1;
+                }
                 function gerakTokoh(o, dt, aksi) {
-                    o.kedipNanti -= dt;
-                    if (o.kedipNanti <= 0) { o.kedip = .15; o.kedipNanti = 2.5 + Math.random() * 4; }
-                    o.kedip = Math.max(0, o.kedip - dt);
                     o.lonjak = Math.max(0, o.lonjak - dt);
-                    if (o.mode === 'diam' && o.tugas) { o.mode = 'pergi'; o.tugas = null; }
+                    if (o.blend < 1) o.blend = Math.min(1, o.blend + dt / .16);
+                    // antrean gelembung
+                    if (o.bub) { o.bub.t += dt; if (o.bub.t > o.bub.lama) o.bub = null; }
+                    if (!o.bub && o.antre.length) {
+                        o.antre[0].tunda -= dt;
+                        if (o.antre[0].tunda <= 0) { const q = o.antre.shift(); o.bub = { teks: q.teks, t: 0, lama: q.lama }; }
+                    }
+                    if (o.mode === 'diam' && o.tugas) {
+                        o.mode = 'pergi'; o.tugas = null; mulaiJalan(o, TITIK_KERJA());
+                        const lain = o === tokoh.k ? tokoh.p : tokoh.k;
+                        o.antre.length = 0; o.bub = null;
+                        bicara(o, acak(aksi === 'siram' ? BARIS.siramPergi : BARIS.pupukPergi));
+                        if (lain.mode === 'diam') bicara(lain, acak(aksi === 'siram' ? BARIS.siramSemangat : BARIS.pupukSemangat), 1.1);
+                    }
                     if (o.mode === 'pergi' || o.mode === 'pulang') {
-                        const tuju = o.mode === 'pergi' ? TITIK_KERJA() : o.rumah;
-                        const sisa = tuju - o.x, langkah = KECEPATAN * dt;
-                        o.arah = sisa < 0 ? -1 : 1;
-                        if (Math.abs(sisa) <= langkah) {
-                            o.x = tuju; o.d = 0;
+                        // percepat di awal, perlambat di akhir (ease in-out sinus)
+                        o.jt += dt;
+                        const u = Math.min(1, o.jt / o.jdur), e = -(Math.cos(Math.PI * u) - 1) / 2;
+                        const nx = o.dari + (o.ke - o.dari) * e;
+                        const lang = Math.abs(nx - o.x);
+                        o.d += lang; o.x = nx;
+                        o.debu -= lang;
+                        if (o.debu <= 0) { o.debu = 3.2; parts.push({ k: 'db', x: o.x - o.arah * 3, y: GY - .2, r: .6, l: .55, L: .55, vx: -o.arah * 1.5 }); }
+                        if (u >= 1) {
+                            o.d = 0; o.blend = 0;
                             if (o.mode === 'pergi') { o.mode = 'kerja'; o.t = 0; o.arah = -1; }
-                            else { o.mode = 'diam'; o.arah = o === tokoh.k ? 1 : -1; senang(false); }
-                        } else { o.x += Math.sign(sisa) * langkah; o.d += langkah; }
+                            else {
+                                o.mode = 'diam'; o.arah = o === tokoh.k ? 1 : -1; senang(false);
+                                bicara(o, acak(aksi === 'siram' ? BARIS.siramPulang : BARIS.pupukPulang), .2);
+                            }
+                        }
                     } else if (o.mode === 'kerja') {
                         o.t += dt;
                         // pose kerja menghadap kiri: ujung cerat / tangan ada ~11 unit di depan kepala
@@ -2506,8 +2559,62 @@
                             const L = .8 + Math.random() * .8;
                             parts.push({ k: 's', x: depan - 2 - Math.random() * 16, y: GY - 14 - Math.random() * 14, l: L, L: L, ph: Math.random() * 6.28 });
                         }
-                        if (o.t > 1.7) { o.mode = 'pulang'; o.d = 0; }
+                        if (o.t > 1.7) { o.mode = 'pulang'; o.d = 0; o.blend = 0; mulaiJalan(o, o.rumah); }
                     }
+                }
+                function obrolan(dt) {
+                    const k = tokoh.k, p = tokoh.p;
+                    const santai = k.mode === 'diam' && p.mode === 'diam' && !k.bub && !p.bub && !k.antre.length && !p.antre.length;
+                    if (layu() && santai) {
+                        layuNanti -= dt;
+                        if (layuNanti <= 0) { layuNanti = 9 + Math.random() * 5; bicara(Math.random() < .5 ? k : p, acak(BARIS.layu)); }
+                        return;
+                    }
+                    if (!santai) return;
+                    obrolanNanti -= dt;
+                    if (obrolanNanti > 0) return;
+                    obrolanNanti = 11 + Math.random() * 9;
+                    const c = acak(BARIS.obrolan), A1 = tokoh[c[0]], A2 = tokoh[c[2]];
+                    bicara(A1, c[1]);
+                    bicara(A2, c[3], A1.antre[0].lama + .3);
+                }
+                // ---- gambar gelembung di atas kepala ----
+                function bulatPixel(cx0, cy0, w, h, isi, tepi, t) {
+                    // persegi bersudut tumpul ala pixel art (sudut ditangga 2 langkah)
+                    x.fillStyle = tepi;
+                    x.fillRect(cx0 + 2 * t, cy0, w - 4 * t, h); x.fillRect(cx0, cy0 + 2 * t, w, h - 4 * t); x.fillRect(cx0 + t, cy0 + t, w - 2 * t, h - 2 * t);
+                    x.fillStyle = isi;
+                    x.fillRect(cx0 + 2 * t, cy0 + t, w - 4 * t, h - 2 * t); x.fillRect(cx0 + t, cy0 + 2 * t, w - 2 * t, h - 4 * t);
+                }
+                function gambarGelembung(o) {
+                    const b = o.bub; if (!b) return;
+                    const masuk = Math.min(1, b.t / .22);
+                    const pantul = masuk < 1 ? 1 + 2.70158 * Math.pow(masuk - 1, 3) + 1.70158 * Math.pow(masuk - 1, 2) : 1;
+                    const alpha = Math.min(1, b.t / .12, (b.lama - b.t) / .35);
+                    if (alpha <= 0) return;
+                    const huruf = Math.min(b.teks.length, Math.floor(Math.max(0, b.t - .08) * 32));
+                    const fs = Math.round(S * 3.1), t = Math.max(2, Math.round(S * .45));
+                    x.save();
+                    x.font = fs + "px 'Pixelify Sans', 'Press Start 2P', monospace";
+                    x.textBaseline = 'middle';
+                    const w = Math.ceil(x.measureText(b.teks).width) + fs * 1.2, h = Math.round(fs * 1.75);
+                    const kepalaY = (GY + 1 - TINGGI_TOKOH - 1.2) * S;
+                    let cx = o.x * S;
+                    const kiri = Math.min(Math.max(cx - w / 2, 6), AW * S - w - 6);
+                    x.globalAlpha = Math.max(0, alpha);
+                    x.translate(cx, kepalaY); x.scale(pantul, pantul); x.translate(-cx, -kepalaY);
+                    const top = kepalaY - h - t * 4;
+                    x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(kiri + t * 2, top + t * 2, w, h);   // bayangan
+                    bulatPixel(kiri, top, w, h, '#fff4e6', '#3a2433', t);
+                    // ekor menunjuk kepala
+                    const ex = Math.min(Math.max(cx, kiri + t * 5), kiri + w - t * 5);
+                    x.fillStyle = '#3a2433';
+                    x.fillRect(ex - t * 3, top + h - t, t * 6, t * 2); x.fillRect(ex - t * 2, top + h + t, t * 4, t); x.fillRect(ex - t, top + h + t * 2, t * 2, t);
+                    x.fillStyle = '#fff4e6';
+                    x.fillRect(ex - t * 2, top + h - t, t * 4, t); x.fillRect(ex - t, top + h, t * 2, t);
+                    x.fillStyle = '#4a2b33';
+                    x.fillText(b.teks.slice(0, huruf), kiri + fs * .6, top + h / 2 + 1);
+                    x.restore();
                 }
                 function frameKerja(t) {
                     if (t < .3) return 0;
@@ -2515,20 +2622,45 @@
                     if (t < 1.45) return 2 + (Math.floor((t - .55) / .2) % 2);
                     return 0;
                 }
-                function gambarTokoh(o) {
-                    let lb = o.spr.jalan, f = o.diamF, sy = 1, bob = 0;
-                    if (o.mode === 'pergi' || o.mode === 'pulang') f = Math.floor(o.d / 1.25) % lb.n;
-                    else if (o.mode === 'kerja') { lb = o.spr.kerja; f = frameKerja(o.t); }
-                    else sy = 1 + .012 * (.5 + .5 * Math.sin(T * 2.1 + (o === tokoh.k ? 0 : 1.4)));   // bernapas
-                    if (!(lb.im.complete && lb.im.naturalWidth)) return;
-                    if (o.lonjak > 0) bob = -Math.abs(Math.sin((0.9 - o.lonjak) / 0.9 * Math.PI * 2)) * 2.4;
+                function lukisTokoh(o, lb, f, sy, bob, alpha, miring) {
+                    if (!(lb.im.complete && lb.im.naturalWidth) || alpha <= 0) return;
                     const u = TINGGI_TOKOH / lb.h;          // unit adegan per piksel lembar
                     x.save();
+                    x.globalAlpha = alpha;
                     x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
                     x.translate(o.x * S, (GY + 1 + bob) * S);
+                    x.rotate(miring);
                     x.scale(o.arah < 0 ? -1 : 1, sy);
                     x.drawImage(lb.im, f * lb.cw, 0, lb.cw, lb.ch, -lb.headX * u * S, -lb.ch * u * S, lb.cw * u * S, lb.ch * u * S);
                     x.restore();
+                }
+                function gambarTokoh(o) {
+                    let lb = o.spr.jalan, f = o.diamF, sy = 1, bob = 0, miring = 0;
+                    const jalan = o.mode === 'pergi' || o.mode === 'pulang';
+                    if (jalan) {
+                        f = Math.floor(o.d / 1.3) % lb.n;
+                        bob = -Math.abs(Math.sin(o.d / 1.3 * Math.PI / 2)) * .45;   // naik-turun tiap langkah
+                        miring = o.arah * .025 * Math.min(1, o.jt / .3);               // condong ke depan saat jalan
+                    } else if (o.mode === 'kerja') { lb = o.spr.kerja; f = frameKerja(o.t); }
+                    else {
+                        const ph = T * 1.9 + (o === tokoh.k ? 0 : 1.4);
+                        sy = 1 + .012 * (.5 + .5 * Math.sin(ph));                         // bernapas
+                        miring = Math.sin(ph * .5) * .012;                                 // bergoyang pelan
+                    }
+                    if (o.lonjak > 0) bob -= Math.abs(Math.sin((0.9 - o.lonjak) / 0.9 * Math.PI * 2)) * 2.4;
+                    // bayangan di tanah, mengecil saat meloncat
+                    const tinggiLompat = Math.max(0, -bob);
+                    x.save();
+                    x.globalAlpha = .28 * (1 - Math.min(.6, tinggiLompat / 5));
+                    x.fillStyle = '#0d0a14';
+                    x.beginPath();
+                    x.ellipse(o.x * S, (GY + .7) * S, (5.2 - tinggiLompat * .5) * S, 1.1 * S, 0, 0, Math.PI * 2);
+                    x.fill();
+                    x.restore();
+                    // pergantian pose dipudarkan singkat supaya tidak meloncat
+                    if (o.lb0 && o.blend < 1 && o.lb0 !== lb) lukisTokoh(o, o.lb0, o.f0, sy, bob, 1 - o.blend, miring);
+                    lukisTokoh(o, lb, f, sy, bob, o.blend < 1 && o.lb0 && o.lb0 !== lb ? o.blend : 1, miring);
+                    if (o.blend >= 1) { o.lb0 = lb; o.f0 = f; }
                 }
                 function frame(now) {
                     requestAnimationFrame(frame);
@@ -2553,7 +2685,9 @@
                     // ---- ksatria & putri ----
                     gerakTokoh(tokoh.k, dt, 'siram');
                     gerakTokoh(tokoh.p, dt, 'tabur');
-                    gambarTokoh(tokoh.k); gambarTokoh(tokoh.p);
+                    obrolan(dt);
+                    // yang lebih jauh di belakang (lebih kiri saat berpapasan) digambar dulu
+                    if (tokoh.k.x < tokoh.p.x) { gambarTokoh(tokoh.p); gambarTokoh(tokoh.k); } else { gambarTokoh(tokoh.k); gambarTokoh(tokoh.p); }
                     hatiSantai -= dt;
                     if (hatiSantai <= 0) { hatiSantai = 7 + Math.random() * 8; if (tokoh.k.mode === 'diam' && tokoh.p.mode === 'diam') hati.push({ t: 0, ph: Math.random() * 6.28, dx: (Math.random() - .5) * 3 }); }
                     // kelopak / daun kering berjatuhan
@@ -2579,6 +2713,13 @@
                             p.vy += 40 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.l -= dt;
                             x.globalAlpha = Math.max(0, p.l / .35); x.fillStyle = '#bfe0fa';
                             x.fillRect(Math.round(p.x * S), Math.round(p.y * S), 3, 3); x.globalAlpha = 1;
+                            if (p.l <= 0) parts.splice(i, 1);
+                            continue;
+                        }
+                        if (p.k === 'db') {          // debu langkah
+                            p.l -= dt; p.r += dt * 2.2; p.x += p.vx * dt; p.y -= dt * .8;
+                            x.globalAlpha = Math.max(0, p.l / p.L) * .45; x.fillStyle = '#b8a48c';
+                            x.beginPath(); x.arc(p.x * S, p.y * S, p.r * S, 0, Math.PI * 2); x.fill(); x.globalAlpha = 1;
                             if (p.l <= 0) parts.splice(i, 1);
                             continue;
                         }
@@ -2615,8 +2756,30 @@
                             x.restore();
                         }
                     }
+                    gambarGelembung(tokoh.k); gambarGelembung(tokoh.p);
                 }
                 requestAnimationFrame(frame);
+                // klik / sentuh tokoh -> meloncat kecil, satu hati, dan menjawab
+                cv.addEventListener('pointerdown', ev => {
+                    const r = cv.getBoundingClientRect();
+                    const ux = (ev.clientX - r.left) / r.width * AW, uy = (ev.clientY - r.top) / r.height * AH;
+                    for (const kunci of ['k', 'p']) {
+                        const o = tokoh[kunci];
+                        if (o.mode !== 'diam') continue;
+                        if (Math.abs(ux - o.x) < 7 && uy > GY - TINGGI_TOKOH - 1 && uy < GY + 2) {
+                            o.lonjak = .9; o.antre.length = 0;
+                            o.bub = null; bicara(o, acak(kunci === 'k' ? BARIS.klikK : BARIS.klikP));
+                            hati.push({ t: 0, ph: Math.random() * 6.28, dx: (Math.random() - .5) * 3 });
+                            break;
+                        }
+                    }
+                });
+                cv.addEventListener('pointermove', ev => {
+                    const r = cv.getBoundingClientRect();
+                    const ux = (ev.clientX - r.left) / r.width * AW, uy = (ev.clientY - r.top) / r.height * AH;
+                    const kena = ['k', 'p'].some(k => Math.abs(ux - tokoh[k].x) < 7 && uy > GY - TINGGI_TOKOH - 1 && uy < GY + 2);
+                    cv.style.cursor = kena ? 'var(--kursor), pointer' : '';
+                });
 
                 // ---------- tampilan status ----------
                 const elAir = document.getElementById('tm-air'), elAirTx = document.getElementById('tm-air-tx');
@@ -2628,7 +2791,7 @@
                 function perbarui() {
                     majukanWaktu();
                     const k = tahapDari(s.g);
-                    if (k !== cur) { prev = cur; cur = k; fade = 0; cp = canopy(k); pesan('Pohonnya tumbuh jadi ' + NAMA[k].toLowerCase() + '!'); senang(true); }
+                    if (k !== cur) { prev = cur; cur = k; fade = 0; cp = canopy(k); pesan('Pohonnya tumbuh jadi ' + NAMA[k].toLowerCase() + '!'); senang(true); if (tokohSiap) bicara(tokoh.p, acak(BARIS.tumbuh), .3); }
                     const prog = k < 4 ? (s.g - BATAS[k]) / (BATAS[k + 1] - BATAS[k]) : 1;
                     elAir.style.width = Math.round(s.w) + '%'; elAirTx.textContent = Math.round(s.w) + '%';
                     elAir.classList.toggle('kering', layu());
