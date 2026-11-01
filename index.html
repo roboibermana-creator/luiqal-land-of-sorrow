@@ -1480,6 +1480,44 @@
             white-space: nowrap;
         }
 
+        /* ====================================================================
+           TAMAN: pohon sakura yang dirawat (menu baru di sidebar kiri)
+           ==================================================================== */
+        #view-taman { overflow: hidden; background: #1a1533; }
+        #tm-canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+        .tm-hud {
+            position: absolute; left: 3%; top: 4%; width: 44%;
+            padding: 2.2% 2.6%;
+            background: rgba(20, 15, 32, 0.78);
+            border: 3px solid #8b5a2b; border-radius: 6px;
+            box-shadow: inset 0 0 0 2px rgba(0,0,0,0.5), 3px 3px 0 rgba(0,0,0,0.45);
+            font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+            font-size: clamp(0.42rem, 1.05vw, 1rem);
+            color: #f3e6d0;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.7);
+        }
+        .tm-judul { margin: 0 0 0.5em; font-size: 1.25em; color: #ffd1de; }
+        .tm-baris { display: flex; justify-content: space-between; margin-bottom: 0.25em; }
+        .tm-bar { height: 0.7em; background: #2b2238; border: 2px solid #120d1c; margin-bottom: 0.7em; }
+        .tm-bar > i { display: block; height: 100%; transition: width 0.6s ease, background-color 0.6s ease; }
+        #tm-air { background: #5aa9e8; }
+        #tm-air.kering { background: #e2504a; }
+        #tm-tumbuh { background: #f08ab0; }
+        .tm-tombol { display: flex; gap: 6%; margin-top: 0.2em; }
+        .tm-tombol button {
+            flex: 1;
+            font: inherit; font-size: 1.05em;
+            padding: 0.45em 0;
+            color: #4a3b2c; background: #e8d0aa;
+            border: 3px solid #8b5a2b; border-radius: 4px;
+            box-shadow: inset -2px -2px 0 #c9a979, inset 2px 2px 0 #fff1d6;
+            cursor: var(--kursor), pointer;
+            transition: transform 0.1s ease, filter 0.1s ease;
+        }
+        .tm-tombol button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .tm-tombol button:active { transform: translateY(2px); box-shadow: inset 2px 2px 0 #c9a979; }
+        #tm-msg { margin: 0.7em 0 0; min-height: 1.2em; color: #e7d8bd; }
+
         /* ====== PEMUTAR MUSIK (posisi tetap di layar) ====== */
         #music-bar {
             position: fixed;
@@ -1832,6 +1870,11 @@
             <!-- LEFT SIDEBAR (Invisible Interactive Overlays) -->
             <div class="sidebar-interactive" style="position: absolute; left: 0; top: 0; width: 22%; height: 100%; z-index: 10;">
                 <!-- Tombol menu: ikon PNG terpisah menimpa ikon yang tergambar di mockup -->
+                <div id="btn-taman"              class="nav-btn" style="left: 17%;   top: 15.6%; width: 62%; height: 9.5%;" title="Taman Sakura">
+                    <img class="nav-ico" src="gambarpixel/anim/ico_taman_hi.png" alt=""
+                         style="left: -1.5%; top: 0%; width: 32%; height: 100%;">
+                    <span class="nav-label">taman</span>
+                </div>
                 <div id="btn-dashboard-view"     class="nav-btn" style="left: 17%;   top: 28.5%; width: 62%; height: 11.5%;" title="Beranda">
                     <img class="nav-ico" src="gambarpixel/anim/ico_horse_hi.png" alt=""
                          style="left: 1.06%; top: 23.46%; width: 28.95%; height: 68.16%;">
@@ -1885,6 +1928,8 @@
                         <img src="photo/thumb/photobooth/photobooth7.jpg" data-full="photo/photobooth/photobooth7.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/photobooth8.jpg" data-full="photo/photobooth/photobooth8.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/photobooth9.jpg" data-full="photo/photobooth/photobooth9.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth10.jpg" data-full="photo/photobooth/photobooth10.jpg" class="photobooth-img" alt="">
+                        <img src="photo/thumb/photobooth/photobooth11.jpg" data-full="photo/photobooth/photobooth11.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/1-20260627-210208-dtmtckm34vbvc1fy.jpg" data-full="photo/photobooth/1-20260627-210208-dtmtckm34vbvc1fy.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/1-20260627-210720-jxh3p8rg3di8uzzu.jpg" data-full="photo/photobooth/1-20260627-210720-jxh3p8rg3di8uzzu.jpg" class="photobooth-img" alt="">
                         <img src="photo/thumb/photobooth/4-20260627-210208-dtmtckm34vbvc1fyl2a07OdG.jpg" data-full="photo/photobooth/4-20260627-210208-dtmtckm34vbvc1fyl2a07OdG.jpg" class="photobooth-img" alt="">
@@ -2012,6 +2057,23 @@
                                 <img class="au-pg" id="au-next" src="gambarpixel/anim/au/pg_next_hi.png" alt="Berikutnya">
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TAMAN SAKURA -->
+                <div id="view-taman" class="view-section hidden" style="position: absolute; width: 100%; height: 100%;">
+                    <canvas id="tm-canvas"></canvas>
+                    <div class="tm-hud">
+                        <p class="tm-judul">Taman Sakura</p>
+                        <div class="tm-baris"><span>Air</span><span id="tm-air-tx"></span></div>
+                        <div class="tm-bar"><i id="tm-air"></i></div>
+                        <div class="tm-baris"><span id="tm-tahap"></span><span id="tm-tumbuh-tx"></span></div>
+                        <div class="tm-bar"><i id="tm-tumbuh"></i></div>
+                        <div class="tm-tombol">
+                            <button type="button" id="tm-siram">Siram</button>
+                            <button type="button" id="tm-pupuk">Pupuk</button>
+                        </div>
+                        <p id="tm-msg"></p>
                     </div>
                 </div>
 
@@ -2263,6 +2325,8 @@
             if(btnPhotoboothGallery) btnPhotoboothGallery.addEventListener('click', () => { markActive(btnPhotoboothGallery); showView(viewGalleryPhotobooth); });
             if(btnRandomGallery) btnRandomGallery.addEventListener('click', () => { markActive(btnRandomGallery); showView(viewGalleryRandom, 'anim/frame_random_hi.webp'); });
             if(btnRomanceGallery) btnRomanceGallery.addEventListener('click', () => { markActive(btnRomanceGallery); showView(viewGalleryRomance, 'anim/frame_romance_hi.webp'); });
+            const btnTaman = document.getElementById('btn-taman');
+            if(btnTaman) btnTaman.addEventListener('click', () => { markActive(btnTaman); showView(document.getElementById('view-taman')); });
 
             if(btnProfile) {
                 btnProfile.addEventListener('click', () => {
@@ -2271,6 +2335,241 @@
                     document.getElementById('scrolling-bg').style.backgroundImage = "url('gambarpixel/anim/dashboard_hi.webp')";
                 });
             }
+
+            // ================= TAMAN: POHON SAKURA YANG DIRAWAT =================
+            // Pohon pixel art (gambar sakura) digambar ke kanvas; tiap tahap
+            // disimpan per baris (46 kolom) supaya baris tidak bisa bergeser.
+            // Keadaan disimpan di localStorage browser ini: air berkurang
+            // sesuai waktu nyata, pohon hanya tumbuh selama tidak kering, dan
+            // tidak pernah mati -- paling parah layu sampai disiram lagi.
+            (function () {
+                const view = document.getElementById('view-taman');
+                if (!view) return;
+                const cv = document.getElementById('tm-canvas');
+                const x = cv.getContext('2d');
+                const D = {"pal":["#fee2e1","#fecfd4","#fec5cd","#febec9","#fea0b5","#ff99b2","#ff95b0","#fe90ad","#fe86a7","#f6759c","#ed6894","#e05a8a","#d34c7f","#bb4172","#803c3e","#5d2437","#451c2e","#e2f5be","#ceeba5","#b9e28d","#a5d874","#91cc67","#7ebe5d","#6ab153","#59a24c","#4c9247","#3e8242","#32733d","#2c673a","#255a37","#1e4e34","#96ce60","#60a64a","#34703a","#78523a","#5c3c2c","#422a22","#b28052","#845a3a","#ecb7c8","#fbadce","#f397be","#e27aa5","#e679a5","#e479a5","#e379a6","#e678a5","#e678a3","#e578a6","#d85175","#a13b2c","#612503"],"wilt":["#f0ded6","#ead3ca","#e4c8bf","#debdb3","#d5b2a8","#cca79d","#c39c92","#b89086","#ac847b","#9f7770","#936b66","#87605c","#7a5553","#6e4a4a","#803c3e","#5d2437","#451c2e","#eee2aa","#e4d598","#dac885","#d0bb73","#c6ae65","#bba058","#b0934c","#a38543","#95783e","#876a38","#795e33","#6e542f","#634a2c","#584028","#c6ae65","#95783e","#634a2c","#78523a","#5c3c2c","#422a22","#b28052","#845a3a","#ead3ca","#f0ded6","#debdb3","#936b66","#d5b2a8","#ac847b","#9f7770","#cca79d","#7a5553","#c39c92","#6e4a4a","#a13b2c","#612503"],"leaf":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,17,18,19,20,21,22,23,24,25,26,27,28,29,30,40,39,41,43,46,48,44,45,42,47,49],"petals":["#fee2e1","#fecfd4","#fec5cd","#febec9","#fea0b5","#ff99b2","#ff95b0","#fe90ad","#fe86a7"],"st":["33|(22)B(23)/(21)BBC(22)/(20)yyyyz(21)/(19)yyzzzzA(20)/(18)yzzAAAAAA(19)","28|(21)vv(23)/(19)vvwwv.vv(19)/(18)vwwwxvvwwv(18)/(18)wwxx.fvwwx(18)/(19)xx(2)fwxx(19)/(23)e(22)/(23)f(22)/(20)yyzyyy(20)/(18)yyzzzzzAy(19)/(17)yzzAAAAAAAz(18)","18|(19)FG(5)GG(18)/(19)FFF(2)HFGJJ(17)/(15)F.FFFGJFFEJFJF(17)/(14)FEGGFFFFHFFGFHFGED(14)/(13)DGJGDGFFFFFGGLFFFFF(14)/(13)FFGFGGLLGLFGLHLEGHH(14)/(12)GHHIGNNLNONLNNFGGJHHG(13)/(12)FFFFFGNOOGNLGONOFFJHF(13)/(11)GFFFDHFGNOFGNGOOGFFLHF(13)/(13)GGLLHGGOON.OOHFGNGFG(13)/(14)GLLNLG.O.OOGGEJNIG(14)/(16)G.G(2)OPO(4)G.G(15)/(21)OP(23)/(20)OO(24)/(20)OP(24)/(20)OP(24)/(19)OPP(24)/(19)OPP(24)/(17)OOPP(25)/(16)OOPPPP(24)","9|(20)K(9)K(15)/(19)DGKD(5)EMGKI(13)/(14)E(4)I.DLD(2)HKI.FIGE(12)/(14)K.EIF.IKIJ.HEEKFMFKE(12)/(13)EEI.IDELFKGHHM.K.FK(4)E(9)/(11)EL.EKFGFGDKEMMDHDJIEKEIKE.E(8)/(10)E.JFII.DJF.FIEEMDNINIEMHFMFI(8)/(11)EFKIDEMNGNKENEDKDGINGE.IFKG(8)/(10)MHFIIEPEDNGG.PNIKJNDJIDKFIFG(8)/(9)KIIHIIKEPNGNNPNGN.P.HDIJIIIIGK(7)/(10)JDKDJDK.PMPPIGNIK.PJJPDJDIIEI(7)/(9)KDIIDDEIHEPIMDJNIN.KPPMIDKIKKE(7)/(8)K.JDKD.NEENJPPIDGNGMPPMJDIDNKEL(7)/(9)L.L.KNGIEGN.PPKN.NPPKIEKNNI.KL(7)/(12)M(2)NNJN.I.PK(2)PPGKEDEGNG.K(8)/(12)I.NGNNKKI.PP.PPM(2)GEGNGGK(9)/(13)J.J(2)K.I.OPPP(4)L.K(2)M(10)/(22)OPP(7)K(13)/(22)OP(22)/(21)OOP(22)/(21)OPP(22)/(21)OP(23)/(20)OOP(23)/(20)OPP(23)/(20)OPP(23)/(19)OOPP(23)/(17)OOOPP(24)/(16)OOPPPP(24)/(15)OOPPPPPP(23)","0|(16)88(2)888(23)/(15)722553227(2)777(17)/(14)4020200025882258a(15)/(13)720000020237000347a(14)/(12)7202030022241011315a(14)/(10)5507003372042011172558a(13)/(10)5110227221244204116543989(11)/(9)8336272005260222241667a8159(10)/(10)a627772727607266a762663501a(9)/(6)448aa688a3787867786a62898001055a(8)/(5)424116619a986a368a6a400033020155aa(7)/(4)420003004444aaaa6afa420201031613559(7)/(3)72030303003355afaaaba1631501521529999(6)/(2)6201033326135545bfafa44114555144488b979a(4)/(2)62240316633422555affb97145a62548848b7836a(3)/.716633353662225a5aacfc4774626544268a633666a(2)/.7a6643738a666a559bcefda366a89594455525536a8b./.a9a8a76a8a88c888daaafgd96bbb5699aa62315566bb./(2)bbaabbaa99bc98dcaca.ffaabbfaa777765483996aba/.97227bbcafbbdddcccc(2)ffbaaffb77a7a2a8a779c8ab/862284393bbffddaf9.b(2)fffaffcbba7aa9a44aa9cbbb/b428187889bccffdg(4)eeefffbcbagaga99aaacbbbb./b996b8b9bbcaccfgff(3)fegfadcbbgggacc9ccbcddd(2)/.c9bbdbbbbfac5ccgfeggeegaab4.ggdddddc9ccbd.c(2)/.cc9dd7ccdd.aa(3)ffeeeefa(2)gggddaddd9bbbbd(4)/(3)bdd.c.d(9)geeg.gfgg(4)dd9d(2)bb(6)/(4)b(14)feeefff(8)dd(10)/(19)eefgg(22)/(18)eefgg(23)/(18)eefg(24)/(17)feeeg(24)/(17)eeeegg(23)/(17)eeeeegg(22)/(16)eeegeefgg(21)/(12)2a5eeegggeegggg(19)/(9)2a2gfeeegggggeeggggg8dd51(12)/(7)22a2ffegggggegggeeggggg97bd91(10)/(6)a5a59a5a5b552295ab565d55ad55591(9)"]};
+                const CH = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const SW = 46, SH = 38, S = 6, AW = 120;
+                const LEAF = new Set(D.leaf);
+                function decode(e) {
+                    const [k, b] = e.split('|'), rows = [];
+                    for (let i = 0; i < +k; i++) rows.push('.'.repeat(SW));
+                    for (let r of b.split('/')) {
+                        r = r.replace(/\((\d+)\)/g, (m, n) => '.'.repeat(+n));
+                        rows.push((r + '.'.repeat(SW)).slice(0, SW));
+                    }
+                    while (rows.length < SH) rows.unshift('.'.repeat(SW));
+                    return Array.from(rows.slice(-SH).join(''), c => c === '.' ? -1 : CH.indexOf(c));
+                }
+                const ST = D.st.map(decode);
+                function sprite(g, P) {
+                    const o = document.createElement('canvas');
+                    o.width = SW * S; o.height = SH * S;
+                    const c = o.getContext('2d');
+                    for (let i = 0; i < g.length; i++) {
+                        if (g[i] < 0) continue;
+                        c.fillStyle = P[g[i]];
+                        c.fillRect((i % SW) * S, ((i / SW) | 0) * S, S, S);
+                    }
+                    return o;
+                }
+                const SPN = ST.map(g => sprite(g, D.pal)), SPW = ST.map(g => sprite(g, D.wilt));
+                const TOP = ST.map(g => { for (let i = 0; i < g.length; i++) if (g[i] >= 0) return (i / SW) | 0; return SH; });
+                const NAMA = ['Bibit', 'Tunas', 'Sakura muda', 'Sakura besar', 'Sakura mekar'];
+
+                // ---------- aturan perawatan ----------
+                const KEY = 'coupleweb-taman-v1';
+                const JAM = 3600e3;
+                const SUSUT = 100 / 36;            // air habis dari penuh dalam 36 jam
+                const KERING = 25;                 // di bawah ini pohon layu & berhenti tumbuh
+                const TUMBUH_PER_JAM = 0.5;        // tumbuh pelan selama airnya cukup
+                const BATAS = [0, 6, 30, 90, 180]; // poin minimal tiap tahap (~1 minggu dirawat)
+                const JEDA_PUPUK = 8 * JAM, JEDA_SIRAM_TUMBUH = 3 * JAM;
+                let s = null;
+                try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && typeof v.g === 'number') s = v; } catch (e) {}
+                if (!s) s = { g: 0, w: 60, t: Date.now(), lf: 0, lg: 0 };
+                const simpan = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} };
+                function majukanWaktu() {
+                    const now = Date.now(), h = Math.max(0, (now - s.t) / JAM);
+                    const basah = s.w >= KERING ? Math.min(h, (s.w - KERING) / SUSUT) : 0;
+                    s.g += basah * TUMBUH_PER_JAM;
+                    s.w = Math.max(0, s.w - h * SUSUT);
+                    s.t = now;
+                }
+                const tahapDari = g => { let k = 0; for (let i = 0; i < BATAS.length; i++) if (g >= BATAS[i]) k = i; return k; };
+                const layu = () => s.w < KERING;
+                majukanWaktu(); simpan();
+
+                // ---------- adegan ----------
+                let AH = 90, GY = 81, TX = 37, TY = 45, bg = null, stars = [], kunang = [];
+                function tataLetak() {
+                    const r = view.getBoundingClientRect();
+                    if (!r.width || !r.height) return;
+                    AH = Math.max(60, Math.round(AW * r.height / r.width));
+                    cv.width = AW * S; cv.height = AH * S;
+                    x.imageSmoothingEnabled = false;
+                    GY = AH - 9; TX = Math.round((AW - SW) / 2); TY = GY - SH + 2;
+                    stars = []; for (let i = 0; i < 40; i++) stars.push([Math.random() * AW | 0, Math.random() * AH * 0.5 | 0, Math.random() * 6.28, .6 + Math.random() * 1.2]);
+                    kunang = []; for (let i = 0; i < 7; i++) kunang.push({ x: Math.random() * AW, y: AH * 0.45 + Math.random() * (GY - AH * 0.45 - 4), ph: Math.random() * 6.28 });
+                    bg = document.createElement('canvas'); bg.width = AW * S; bg.height = AH * S;
+                    const c = bg.getContext('2d');
+                    const r2 = (a, b, w, h, col) => { c.fillStyle = col; c.fillRect(a * S, b * S, w * S, h * S); };
+                    const pita = ['#1a1533', '#221a3f', '#2c2049', '#3a2653', '#4a2d5a'];
+                    const ph = Math.ceil(GY / pita.length);
+                    pita.forEach((col, i) => r2(0, i * ph, AW, ph, col));
+                    const bulat = (cx, cy, R, col) => { for (let dy = -R; dy <= R; dy++) { const w = Math.floor(Math.sqrt(R * R - dy * dy + .5)); r2(cx - w, cy + dy, w * 2 + 1, 1, col); } };
+                    bulat(AW - 18, 14, 7, '#f3e8bd'); bulat(AW - 15, 12, 6, pita[0]);
+                    for (let xx = 0; xx < AW; xx++) {            // bukit jauh
+                        const h1 = Math.round(10 + Math.sin(xx * .07) * 4 + Math.sin(xx * .19 + 1) * 2);
+                        r2(xx, GY - h1, 1, h1, '#2a2240');
+                        const h2 = Math.round(5 + Math.sin(xx * .11 + 2) * 2.5 + Math.sin(xx * .31) * 1);
+                        r2(xx, GY - h2, 1, h2, '#231d36');
+                    }
+                    r2(0, GY, AW, AH - GY, '#25362c'); r2(0, GY, AW, 1, '#3b5a42'); r2(0, GY + 1, AW, 1, '#2f4636');
+                    for (let i = 0; i < AW; i += 3) { const xx = i + (Math.random() * 2 | 0); r2(xx, GY - 1, 1, 1, '#3b5a42'); if (Math.random() < .5) r2(xx + 1, GY - 2, 1, 1, '#46694c'); }
+                }
+                new ResizeObserver(tataLetak).observe(view);
+
+                let cur = tahapDari(s.g), prev = cur, fade = 1, wm = layu() ? 1 : 0;
+                let parts = [], can = 0, canX = 0, canY = 0, T = 0, petalT = 0, wind = 0, last = performance.now();
+                const BASE = SH * S;
+                function canopy(k) { const g = ST[k], o = []; for (let i = 0; i < g.length; i++) { const y = (i / SW) | 0; if (g[i] >= 0 && LEAF.has(g[i]) && y < 32) o.push([i % SW, y]); } return o; }
+                let cp = canopy(cur);
+                function bendAt(r, k, A) { const top = TOP[k] * S, h = Math.max(1, BASE - top), u = Math.max(0, Math.min(1, (BASE - r) / h)); return u * u * (A * S * 1.6) * wind; }
+                function gambarPohon(k, a, sc, A) {
+                    if (a <= 0) return;
+                    x.save();
+                    const ox = (TX + SW / 2) * S, oy = (TY + SH) * S;
+                    x.translate(ox, oy); x.scale(sc, sc); x.translate(-ox, -oy);
+                    const top = TOP[k] * S;
+                    const lapis = (img, al) => { x.globalAlpha = al; for (let r = top; r < BASE; r++) { const d = Math.round(bendAt(r, k, A)); x.drawImage(img, 0, r, SW * S, 1, TX * S + d, TY * S + r, SW * S, 1); } };
+                    lapis(SPN[k], a);
+                    if (wm > 0.01) lapis(SPW[k], a * wm);
+                    x.restore();
+                }
+                function frame(now) {
+                    requestAnimationFrame(frame);
+                    const dt = Math.min(.05, (now - last) / 1000); last = now;
+                    if (view.classList.contains('hidden') || !bg) return;   // menu lain sedang dibuka
+                    T += dt;
+                    wind = Math.sin(T * 1.05) * .8 + Math.sin(T * 2.1 + 1.3) * .25 + Math.sin(T * .43) * .35;
+                    x.drawImage(bg, 0, 0);
+                    for (const st of stars) { x.globalAlpha = .35 + .65 * (.5 + .5 * Math.sin(T * st[3] + st[2])); x.fillStyle = '#ece6c8'; x.fillRect(st[0] * S, st[1] * S, S, S); }
+                    for (const k of kunang) {
+                        k.x += Math.sin(T * .7 + k.ph) * 2 * dt; k.y += Math.cos(T * .5 + k.ph) * 1.5 * dt;
+                        x.globalAlpha = .25 + .75 * Math.max(0, Math.sin(T * 1.3 + k.ph));
+                        x.fillStyle = '#ffe9a0'; x.fillRect(Math.round(k.x * S), Math.round(k.y * S), 4, 4);
+                    }
+                    x.globalAlpha = 1;
+                    wm += ((layu() ? 1 : 0) - wm) * Math.min(1, dt * 1.4);
+                    const A = 1.1 - .7 * wm;
+                    if (fade < 1) fade = Math.min(1, fade + dt * 1.2);
+                    const e = 1 - Math.pow(1 - fade, 3);
+                    if (fade < 1) gambarPohon(prev, 1 - e, 1, A);
+                    gambarPohon(cur, e, .82 + .18 * e + Math.sin(e * Math.PI) * .04, A);
+                    // kelopak / daun kering berjatuhan
+                    petalT += dt;
+                    const pink = cur >= 2 && wm < .5;
+                    const rate = pink ? [0, 0, .6, .32, .11][cur] : (wm > .5 && cur >= 2 ? .55 : 0);
+                    while (rate && petalT > rate && cp.length) {
+                        petalT -= rate;
+                        const c = cp[Math.random() * cp.length | 0];
+                        parts.push({ k: 'p', x: TX + c[0] + bendAt(c[1] * S, cur, A) / S, y: TY + c[1], vx: .6 + Math.random() * .8, vy: 3 + Math.random() * 2.5, ph: Math.random() * 6.28, c: pink ? D.petals[Math.random() * D.petals.length | 0] : D.wilt[Math.random() * 10 | 0], land: 0 });
+                    }
+                    if (!rate) petalT = 0;
+                    for (let i = parts.length - 1; i >= 0; i--) {
+                        const p = parts[i];
+                        if (p.k === 'd') {           // tetes air
+                            p.vy += 60 * dt; p.y += p.vy * dt;
+                            x.globalAlpha = Math.max(0, Math.min(1, (GY - p.y) / 3)); x.fillStyle = '#9ccdf5';
+                            x.fillRect(Math.round(p.x * S), Math.round(p.y * S), 3, 8); x.globalAlpha = 1;
+                            if (p.y >= GY - .5) { parts.splice(i, 1); for (let j = 0; j < 2; j++) parts.push({ k: 'sp', x: p.x, y: GY - .5, vx: (Math.random() - .5) * 8, vy: -6 - Math.random() * 4, l: .35 }); }
+                            continue;
+                        }
+                        if (p.k === 'sp') {          // percikan
+                            p.vy += 40 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.l -= dt;
+                            x.globalAlpha = Math.max(0, p.l / .35); x.fillStyle = '#bfe0fa';
+                            x.fillRect(Math.round(p.x * S), Math.round(p.y * S), 3, 3); x.globalAlpha = 1;
+                            if (p.l <= 0) parts.splice(i, 1);
+                            continue;
+                        }
+                        if (p.k === 's') {           // kilau pupuk
+                            p.y -= 7 * dt; p.l -= dt;
+                            x.globalAlpha = Math.sin(Math.max(0, Math.min(1, p.l / p.L)) * Math.PI); x.fillStyle = '#ffe58a';
+                            const X = Math.round((p.x + Math.sin(T * 3 + p.ph) * .6) * S), Y = Math.round(p.y * S);
+                            x.fillRect(X - 2, Y - 6, 4, 12); x.fillRect(X - 6, Y - 2, 12, 4); x.fillStyle = '#fff8d8'; x.fillRect(X - 2, Y - 2, 4, 4); x.globalAlpha = 1;
+                            if (p.l <= 0) parts.splice(i, 1);
+                            continue;
+                        }
+                        if (p.y < GY - .3) { p.ph += dt * 4; p.x += (p.vx + wind * 1.2 + Math.sin(T * 1.3 + p.ph * .5) * 1.2) * dt; p.y += p.vy * dt; }
+                        else p.land += dt;
+                        const w = Math.max(2, Math.round(S * (.45 + .55 * Math.abs(Math.cos(p.ph)))));
+                        x.globalAlpha = p.land > 2.2 ? Math.max(0, 1 - (p.land - 2.2) / 1.2) : 1; x.fillStyle = p.c;
+                        x.fillRect(Math.round(p.x * S), Math.round(Math.min(p.y, GY - .3) * S), w, 4); x.globalAlpha = 1;
+                        if (p.land > 3.4 || p.x > AW + 2 || p.x < -2) parts.splice(i, 1);
+                    }
+                    if (can > 0) {                   // penyiram muncul, miring, lalu hilang
+                        can -= dt;
+                        const a = Math.min(1, (1.4 - can) / .3, can / .3), ea = a * a * (3 - 2 * a);
+                        x.save(); x.globalAlpha = ea; x.translate(canX * S, (canY - 4 * (1 - ea)) * S); x.rotate(-.6 * ea); x.scale(S, S);
+                        const r = (a2, b, w2, h, c) => { x.fillStyle = c; x.fillRect(a2, b, w2, h); };
+                        r(-6, -3, 12, 7, '#8b96b3'); r(-6, -3, 12, 1, '#b4bdd3'); r(-6, 3, 12, 1, '#6d7894'); r(-10, -2, 4, 2, '#8b96b3'); r(6, -7, 2, 5, '#8b96b3'); r(5, -8, 4, 1, '#8b96b3');
+                        x.restore();
+                    }
+                }
+                requestAnimationFrame(frame);
+
+                // ---------- tampilan status ----------
+                const elAir = document.getElementById('tm-air'), elAirTx = document.getElementById('tm-air-tx');
+                const elTum = document.getElementById('tm-tumbuh'), elTumTx = document.getElementById('tm-tumbuh-tx');
+                const elTahap = document.getElementById('tm-tahap'), elMsg = document.getElementById('tm-msg');
+                let pesanSampai = 0;
+                function sisaWaktu(ms) { const m = Math.ceil(ms / 60000), j = Math.floor(m / 60); return j ? j + ' jam ' + (m % 60) + ' mnt' : m + ' mnt'; }
+                function pesan(t) { elMsg.textContent = t; pesanSampai = Date.now() + 2800; }
+                function perbarui() {
+                    majukanWaktu();
+                    const k = tahapDari(s.g);
+                    if (k !== cur) { prev = cur; cur = k; fade = 0; cp = canopy(k); pesan('Pohonnya tumbuh jadi ' + NAMA[k].toLowerCase() + '!'); }
+                    const prog = k < 4 ? (s.g - BATAS[k]) / (BATAS[k + 1] - BATAS[k]) : 1;
+                    elAir.style.width = Math.round(s.w) + '%'; elAirTx.textContent = Math.round(s.w) + '%';
+                    elAir.classList.toggle('kering', layu());
+                    elTum.style.width = Math.round(prog * 100) + '%'; elTumTx.textContent = k < 4 ? Math.floor(prog * 100) + '%' : 'penuh';
+                    elTahap.textContent = NAMA[k];
+                    if (Date.now() > pesanSampai) {
+                        const jedaP = s.lf + JEDA_PUPUK - Date.now();
+                        elMsg.textContent = layu() ? 'Pohonnya layu, siram dulu ya'
+                            : k === 4 ? 'Sakuranya mekar penuh, jangan lupa disiram'
+                            : jedaP > 0 ? 'Pupuk lagi dalam ' + sisaWaktu(jedaP)
+                            : 'Pupuk sudah bisa dipakai';
+                    }
+                }
+                document.getElementById('tm-siram').addEventListener('click', () => {
+                    majukanWaktu();
+                    if (s.w >= 95) { pesan('Airnya masih penuh'); return; }
+                    const now = Date.now();
+                    s.w = Math.min(100, s.w + 35);
+                    if (now - s.lg >= JEDA_SIRAM_TUMBUH) { s.g += 1; s.lg = now; }
+                    simpan();
+                    // penyiram muncul tepat di atas puncak tanaman tahap sekarang
+                    can = 1.4; canX = TX + 39; canY = TY + Math.max(4, TOP[cur] - 6);
+                    for (let i = 0; i < 14; i++) setTimeout(() => parts.push({ k: 'd', x: canX - 13 + Math.random() * 6, y: canY - 2.5, vy: 4 }), 350 + i * 60);
+                    pesan('Segar lagi!');
+                    perbarui();
+                });
+                document.getElementById('tm-pupuk').addEventListener('click', () => {
+                    majukanWaktu();
+                    if (layu()) { pesan('Siram dulu, pohonnya kering'); return; }
+                    const jeda = s.lf + JEDA_PUPUK - Date.now();
+                    if (jeda > 0) { pesan('Pupuk lagi dalam ' + sisaWaktu(jeda)); return; }
+                    s.g += 8; s.lf = Date.now();
+                    simpan();
+                    for (let i = 0; i < 18; i++) { const L = .9 + Math.random() * .9; parts.push({ k: 's', x: TX + 8 + Math.random() * 30, y: GY - 2 - Math.random() * 26, l: L, L: L, ph: Math.random() * 6.28 }); }
+                    pesan('Pupuknya masuk!');
+                    perbarui();
+                });
+                perbarui();
+                setInterval(() => { perbarui(); simpan(); }, 5000);
+            })();
 
             // 4. Aksi Logout kembali ke Title Screen
             if (btnLogout) {
@@ -2515,6 +2814,7 @@
             // tidak membuat kucing meloncat.
             // Penggeraknya berdiri sendiri -- tidak tersentuh animasi masuk,
             // jadi kucing tidak ter-reset saat pengguna kembali ke layar judul.
+            new Image().src = 'gambarpixel/anim/cat_jump.webp';   // prapemuat supaya lompat pertama tidak berkedip
             const CAT_JALAN_FRAME = 6;
             const CAT_DANDAN_FRAME = 12;
             const CAT_MS = 130;
@@ -2524,7 +2824,9 @@
             function catGambar() {
                 if (ttlCat) ttlCat.style.backgroundPositionX = (catIdx * 100 / (catJumlah - 1)) + '%';
             }
+            let catLompat = false;             // true selama sprite lompat dimainkan
             function catDetak() {
+                if (catLompat) return;
                 catIdx = (catIdx + 1) % catJumlah;
                 catGambar();
             }
@@ -2560,8 +2862,95 @@
                 // maupun menjilatnya jalan terus.
                 const emote = ['miaw', 'purr', 'meong'];
                 const bubble = ttlCat.querySelector('.cat-bubble');
+                // Suara dibuat langsung dengan Web Audio (tanpa berkas), sesuai
+                // emote yang muncul. Volumenya mengikuti volume musik.
+                let acx = null;
+                function suaraKucing(jenis) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (!AC || volume === 0) return;
+                    acx = acx || new AC();
+                    if (acx.state === 'suspended') acx.resume();
+                    const t = acx.currentTime, v = Math.min(1, volume * 1.2);
+                    const gain = acx.createGain();
+                    gain.connect(acx.destination);
+                    const filt = acx.createBiquadFilter();   // "mulut": sapuan formant
+                    filt.type = 'bandpass'; filt.Q.value = 3;
+                    filt.connect(gain);
+                    const osc = acx.createOscillator();
+                    osc.type = 'sawtooth';
+                    osc.connect(filt);
+                    let dur;
+                    if (jenis === 'purr') {
+                        // dengkur: nada rendah yang amplitudonya berdenyut ~25 Hz
+                        dur = 1.6;
+                        osc.frequency.setValueAtTime(55, t);
+                        filt.frequency.setValueAtTime(300, t);
+                        const lfo = acx.createOscillator(), lg = acx.createGain();
+                        lfo.frequency.value = 25; lg.gain.value = 0.5;
+                        lfo.connect(lg); lg.connect(gain.gain);
+                        gain.gain.setValueAtTime(0, t);
+                        gain.gain.linearRampToValueAtTime(0.5 * v, t + 0.2);
+                        gain.gain.setValueAtTime(0.5 * v, t + dur - 0.4);
+                        gain.gain.linearRampToValueAtTime(0, t + dur);
+                        lfo.start(t); lfo.stop(t + dur);
+                    } else {
+                        // miaw = pendek, meong = lebih panjang & rendah di akhir
+                        const m = jenis === 'meong';
+                        dur = m ? 1.0 : 0.6;
+                        const f0 = m ? 380 : 480, fp = m ? 620 : 900;
+                        osc.frequency.setValueAtTime(f0, t);
+                        osc.frequency.linearRampToValueAtTime(fp, t + dur * 0.35);
+                        osc.frequency.linearRampToValueAtTime(m ? 330 : 420, t + dur);
+                        filt.frequency.setValueAtTime(700, t);
+                        filt.frequency.linearRampToValueAtTime(2200, t + dur * 0.35);
+                        filt.frequency.linearRampToValueAtTime(900, t + dur);
+                        gain.gain.setValueAtTime(0, t);
+                        gain.gain.linearRampToValueAtTime(0.35 * v, t + 0.06);
+                        gain.gain.linearRampToValueAtTime(0.25 * v, t + dur * 0.6);
+                        gain.gain.linearRampToValueAtTime(0, t + dur);
+                    }
+                    osc.start(t); osc.stop(t + dur);
+                }
+
                 ttlCat.addEventListener('click', () => {
                     const pilih = emote[Math.floor(Math.random() * emote.length)];
+                    suaraKucing(pilih);
+                    // lompat: lembar cat_jump (6 frame) dimainkan sinkron dengan
+                    // lengkung naik-turun. Lengkungnya pakai properti `translate`
+                    // (terpisah dari `transform` yang dipakai langkah kucing), jadi
+                    // tidak saling menimpa dan gelembung ikut naik karena anak elemen.
+                    // Frame dipilih dari currentTime animasinya sendiri, jadi
+                    // sprite dan gerak selalu seirama. Setelah mendarat, lembar
+                    // sebelumnya (jalan/menjilat) dipulihkan.
+                    if (!ttlCat.getAnimations().some(a => a.id === 'lompat')) {
+                        const LOMPAT_MS = 700;
+                        // batas akhir tiap frame (fraksi durasi): jongkok, tolak, puncak, turun, mendarat, pulih
+                        const batas = [0.14, 0.30, 0.52, 0.72, 0.88, 1];
+                        catLompat = true;
+                        ttlCat.style.backgroundImage = "url('gambarpixel/anim/cat_jump.webp')";
+                        ttlCat.style.backgroundSize = '600% 100%';
+                        const lompat = ttlCat.animate([
+                            { translate: '0 0',     easing: 'ease-out' },
+                            { translate: '0 0',     offset: 0.14, easing: 'cubic-bezier(.2,.7,.4,1)' },
+                            { translate: '0 -75%',  offset: 0.45, easing: 'cubic-bezier(.6,0,.8,.4)' },
+                            { translate: '0 0',     offset: 0.78 },
+                            { translate: '0 0' }
+                        ], { duration: LOMPAT_MS });
+                        lompat.id = 'lompat';
+                        const putar = () => {
+                            const p = Math.min(1, (lompat.currentTime || 0) / LOMPAT_MS);
+                            const f = batas.findIndex(x => p <= x);
+                            ttlCat.style.backgroundPositionX = (f * 100 / 5) + '%';
+                            if (p < 1 && lompat.playState === 'running') requestAnimationFrame(putar);
+                        };
+                        putar();
+                        lompat.onfinish = lompat.oncancel = () => {
+                            catLompat = false;
+                            ttlCat.style.backgroundImage = '';
+                            ttlCat.style.backgroundSize = '';
+                            catGambar();
+                        };
+                    }
                     bubble.style.backgroundImage = "url('gambarpixel/anim/emote_" + pilih + ".webp')";
                     bubble.classList.remove('tampil');
                     void bubble.offsetWidth;          // paksa hitung ulang supaya animasi mulai dari awal
